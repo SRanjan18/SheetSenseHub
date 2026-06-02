@@ -513,8 +513,6 @@ export default function DashboardPage() {
   } ${!hasUseCase ? 'dashboard-page--preselect' : ''}`}
 >
       <section className="dashboard-hero">
-        {hasUseCase && <h1>RanjanLabs - SS Hub</h1>}
-
         {hasUseCase && (
           <Box
             className={`dashboard-card-row ${

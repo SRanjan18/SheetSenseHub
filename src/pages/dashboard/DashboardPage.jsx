@@ -3,10 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useUseCase } from '../../context/UseCaseContext';
 import './DashboardPage.css';
 import { styled } from '@mui/material/styles';
-import ProductDetailsBox from './steps/ProductDetailsBox';
 import OutputTable from './steps/OutputTable';
 import EnterInformation from './steps/EnterInformation';
 import UploadFile from './steps/UploadFile';
+import {
+  getCardAction,
+  getCardsForFamily,
+  getUseCaseFamily,
+} from './dashboardConfig';
 import {
   Box,
   Button,
@@ -20,75 +24,6 @@ import {
 
 const STEP_TITLES = ['Enter Information', 'Upload File', 'Processing', 'Output'];
 const INGESTION_API_URL = '';
-const USE_CASE_FAMILY_MAP = {
-  'BillingHub (BH)': 'sb',
-  'OpsFlow (OF)': 'vo-group',
-  'UnderwritePro (UP)': 'vo-group',
-  'AccountSphere (AS)': 'vo-group',
-  'QuoteVision (QV)': 'search-group',
-  'HealthQuote+ (HQ+)': 'search-group',
-  'ListFlow (LF)': 'simple-group',
-  'MediUnderwrite(MU)': 'simple-group',
-};
-
-const DEFAULT_CARDS = [
-  {
-    key: 'file-station',
-    title: 'File Station',
-    image: '📁',
-    description: 'Click on below button to go to upload zone',
-    buttonText: 'Upload Zone',
-  },
-  {
-    key: 'report',
-    title: 'Report',
-    image: '📈',
-    description: 'Click on below button to view report for processed cases.',
-    buttonText: 'View Report',
-  },
-  {
-    key: 'analytics',
-    title: 'Analytics',
-    image: '📊',
-    description: 'Click on below button to view analytics for processed cases.',
-    buttonText: 'View Analytics',
-  },
-];
-
-const CARD_SETS = {
-  'search-group': [
-    {
-      key: 'search',
-      title: 'Search',
-      image: '🔎',
-      description: 'Click on below button to search processed category file.',
-      buttonText: 'Search Record',
-    },
-    DEFAULT_CARDS[1],
-    DEFAULT_CARDS[2],
-  ],
-  sb: [
-    DEFAULT_CARDS[0],
-    {
-      key: 'occ',
-      title: 'OCC',
-      image: '🗂️',
-      description: 'Click on below button to add/edit OCC Details',
-      buttonText: 'Library Add/Edit',
-    },
-    DEFAULT_CARDS[1],
-    DEFAULT_CARDS[2],
-  ],
-};
-
-function getUseCaseFamily(selectedUseCase) {
-  return selectedUseCase ? USE_CASE_FAMILY_MAP[selectedUseCase] ?? null : null;
-}
-
-function getCardsForFamily(useCaseFamily) {
-  if (!useCaseFamily) return [];
-  return CARD_SETS[useCaseFamily] ?? DEFAULT_CARDS;
-}
 
 function formatCategoryLabel(value) {
   const map = {
@@ -377,23 +312,15 @@ const submitIngestion = async () => {
   }
 };
   const handleCardClick = (key) => {
-    if (key === 'report') {
-      navigate('/report');
+    const action = getCardAction(key);
+
+    if (action.type === 'navigate') {
+      navigate(action.value);
       return;
     }
 
-    if (key === 'analytics') {
-      navigate('/analytics');
-      return;
-    }
-
-    if (key === 'occ') {
-      alert('OCC page will be added next.');
-      return;
-    }
-
-    if (key === 'search') {
-      alert('Search page will be added next.');
+    if (action.type === 'alert') {
+      alert(action.value);
       return;
     }
 

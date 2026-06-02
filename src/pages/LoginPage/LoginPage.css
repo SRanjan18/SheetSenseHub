@@ -93,9 +93,12 @@
   margin: 0 0 8px;
   color: #0a3189;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 34px;
+  font-size: 25px;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .auth-screen__login-panel p {

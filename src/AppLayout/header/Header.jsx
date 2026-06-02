@@ -71,7 +71,7 @@ export default function Header({
           <Box className="shell-divider" />
 
           <Typography component="div" className="shell-product">
-            SS Hub
+            SheetSense Hub
           </Typography>
         </Box>
 

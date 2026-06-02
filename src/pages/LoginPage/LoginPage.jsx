@@ -43,7 +43,6 @@ export default function LoginPage() {
       <div className="auth-screen__right">
         <div className="auth-screen__login-panel">
           <h2>Welcome To RanjanLabs</h2>
-          <p>SS Hub</p>
 
           <button className="auth-screen__login-btn" onClick={handleLogin}>
             LOG IN

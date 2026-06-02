@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import UseCaseModal from '../components/UseCaseModal';
-import { useUseCase } from '../context/UseCaseContext';
+import { useUseCase } from '../context/UsecaseContext';
 import Header from './header/Header';
 import Footer from './footer/Footer';
 import './AppLayout.css';

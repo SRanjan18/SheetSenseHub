@@ -18,6 +18,17 @@
   gap: 16px;
 }
 
+.shell-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shell-logo-icon {
+  color: #0a2a75;
+  font-size: 24px !important;
+}
+
 .shell-logo {
   color: #0a2a75;
   font-size: 14px !important;

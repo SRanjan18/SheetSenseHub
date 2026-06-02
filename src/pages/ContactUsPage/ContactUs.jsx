@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import contactUsBackground from '../../assets/contact_us.svg';
 
 const contactItems = [
   {
@@ -31,16 +32,28 @@ export default function ContactUs() {
           position: 'relative',
           width: '100%',
           height: 260,
-          backgroundImage: 'url("./assets/contact_us.png")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundColor: '#0c1e3f',
+          overflow: 'hidden',
         }}
       >
+        <Box
+          component="img"
+          src={contactUsBackground}
+          alt="Contact Us Background"
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.95,
+          }}
+        />
         <Box
           sx={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.25))',
+            background: 'linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.45))',
           }}
         />
         <Box

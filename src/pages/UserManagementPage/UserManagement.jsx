@@ -20,6 +20,7 @@ import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import userManagementBackground from '../../assets/user_management.svg';
 
 const mockApiResponse = [
   {
@@ -233,11 +234,23 @@ export default function UserManagement() {
           position: 'relative',
           width: '100%',
           height: 180,
-          backgroundImage: 'url("./assets/bg_image.png")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundColor: '#0c1e3f',
+          overflow: 'hidden',
         }}
       >
+        <Box
+          component="img"
+          src={userManagementBackground}
+          alt="User Management Background"
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.95,
+          }}
+        />
         <Box
           sx={{
             position: 'absolute',
@@ -245,6 +258,7 @@ export default function UserManagement() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            background: 'rgba(0,0,0,0.25)',
           }}
         >
           <Typography

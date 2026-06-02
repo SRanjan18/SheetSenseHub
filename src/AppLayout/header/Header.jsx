@@ -12,6 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import UserPanel from './UserPanel/UserPanel';
 import './Header.css';
 
@@ -60,9 +61,12 @@ export default function Header({
     <AppBar position="static" elevation={0} className="shell-header">
       <Toolbar className="shell-header__toolbar">
         <Box className="shell-header__left">
-          <Typography component="div" className="shell-logo">
-           RanjanLabs
-          </Typography>
+          <Box className="shell-logo-container">
+            <AutoAwesomeRoundedIcon className="shell-logo-icon" />
+            <Typography component="div" className="shell-logo">
+              RanjanLabs
+            </Typography>
+          </Box>
 
           <Box className="shell-divider" />
 

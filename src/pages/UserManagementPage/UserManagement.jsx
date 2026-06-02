@@ -228,7 +228,7 @@ export default function UserManagement() {
   ];
 
   return (
-    <Box sx={{ backgroundColor: '#fff', minHeight: '100vh' }}>
+    <Box sx={{ backgroundColor: '#fff', minHeight: '100%' }}>
       <Box
         sx={{
           position: 'relative',
@@ -266,6 +266,8 @@ export default function UserManagement() {
               color: '#fff',
               fontWeight: 700,
               fontSize: 36,
+              textShadow: '0 12px 30px rgba(0, 0, 0, 0.32)',
+              letterSpacing: '0.04em',
             }}
           >
             User Management
@@ -288,16 +290,25 @@ export default function UserManagement() {
           />
 
           <Button
-            variant="outlined"
+            variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpenAdd}
+            sx={{
+              backgroundColor: '#5f7fbd',
+              color: '#fff',
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#4a6a9e',
+              },
+            }}
           >
             Add New User
           </Button>
         </Stack>
 
-        <Paper sx={{ height: 520, width: '100%' }}>
+        <Paper sx={{ width: '100%', minHeight: 360, overflow: 'hidden' }}>
           <DataGrid
+            autoHeight
             rows={filteredRows}
             columns={columns}
             disableRowSelectionOnClick
@@ -310,8 +321,15 @@ export default function UserManagement() {
             sx={{
               border: 0,
               '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#f6f7fb',
+                backgroundColor: '#eaf1ff',
+                color: '#233857',
                 fontWeight: 700,
+              },
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: 'rgba(95, 127, 189, 0.08)',
+              },
+              '& .MuiDataGrid-virtualScroller': {
+                overflow: 'visible !important',
               },
             }}
           />

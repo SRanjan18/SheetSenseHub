@@ -61,7 +61,7 @@ const CARD_SETS = {
       key: 'search',
       title: 'Search',
       image: '🔎',
-      description: 'Click on below button to search processed census file.',
+      description: 'Click on below button to search processed category file.',
       buttonText: 'Search Record',
     },
     DEFAULT_CARDS[1],
@@ -90,26 +90,22 @@ function getCardsForFamily(useCaseFamily) {
   return CARD_SETS[useCaseFamily] ?? DEFAULT_CARDS;
 }
 
-function formatCensusLabel(value) {
+function formatCategoryLabel(value) {
   const map = {
-    'census-a': 'DEN:BASIC',
-    'census-b': 'DEN:CORE',
-    'census-c': 'DEN:PREMIER',
-    'census-d': 'VIS:*',
     'DEN:BASIC': 'DEN:BASIC',
     'DEN:CORE': 'DEN:CORE',
     'DEN:PREMIER': 'DEN:PREMIER',
-    'VIS:*': 'VIS:*',
+    'VIS:BASIC': 'VIS:BASIC',
+    'VIS:STANDARD': 'VIS:STANDARD',
+    'VIS:ESSENTIAL': 'VIS:ESSENTIAL',
+    'VIS:PLUS': 'VIS:PLUS',
   };
 
   return map[value] ?? value;
 }
 
-function formatTierLabel(value) {
+function formatProfileLabel(value) {
   const map = {
-    'tier-1': 'STANDARD',
-    'tier-2': 'ADVANCED',
-    'tier-3': 'STRICT',
     STANDARD: 'STANDARD',
     ADVANCED: 'ADVANCED',
     STRICT: 'STRICT',
@@ -166,9 +162,9 @@ export default function DashboardPage() {
 
   const [groupName, setGroupName] = useState('');
   const [opportunityId, setOpportunityId] = useState('');
-  const [census, setCensus] = useState('');
-  const [tier, setTier] = useState('');
-  const [caChecked, setCaChecked] = useState(false);
+  const [category, setCategory] = useState('');
+  const [profile, setProfile] = useState('');
+  const [ocChecked, setOcChecked] = useState(false);
   const [isLtd, setIsLtd] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
@@ -181,22 +177,20 @@ export default function DashboardPage() {
   const showStepper = useCaseFamily !== 'search-group';
   const sectionTitle = useCaseFamily === 'search-group' ? '' : 'File Station';
 
-  const isCaEnabled =
+  const isOcEnabled =
     useCaseFamily === 'vo-group' &&
-    (census === 'DEN:CORE' ||
-      census === 'DEN:PREMIER' ||
+    ((category.startsWith('DEN:') && category !== 'DEN:BASIC') ||
       voProducts.some(
-        (product) =>
-          product.census === 'DEN:CORE' || product.census === 'DEN:PREMIER'
+        (product) => product.category.startsWith('DEN:') && product.category !== 'DEN:BASIC'
       ));
 
   const isOppIdValid =
-    opportunityId.trim().length === 0 || /^Opp-\d{9}$/.test(opportunityId.trim());
-  const usedCensus = useMemo(
-    () => new Set(voProducts.map((product) => product.census)),
+    opportunityId.trim().length === 0 || /^Opp-\d{9}$/i.test(opportunityId.trim());
+  const usedCategories = useMemo(
+    () => new Set(voProducts.map((product) => product.category)),
     [voProducts]
   );
-  const isVoAddEnabled = Boolean(census) && Boolean(tier);
+  const isVoAddEnabled = Boolean(category) && Boolean(profile);
 
   // CHANGED: keep product count aligned with the active use case family
   const productCount = useMemo(() => {
@@ -216,16 +210,36 @@ export default function DashboardPage() {
   }, [currentStep]);
 
   useEffect(() => {
-    if (!isCaEnabled && caChecked) {
-      setCaChecked(false);
+    if (!isOcEnabled && ocChecked) {
+      setOcChecked(false);
     }
-  }, [isCaEnabled, caChecked]);
+  }, [isOcEnabled, ocChecked]);
 
   const clearFieldError = (field) => {
     setFieldErrors((prev) => ({
       ...prev,
       [field]: '',
     }));
+  };
+
+  const validateOpportunityId = () => {
+    const normalizedOpportunityId = opportunityId.trim();
+
+    if (!normalizedOpportunityId) {
+      clearFieldError('opportunityId');
+      return true;
+    }
+
+    if (!/^Opp-\d{9}$/i.test(normalizedOpportunityId)) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        opportunityId: 'Opportunity ID format: Opp-123456789',
+      }));
+      return false;
+    }
+
+    clearFieldError('opportunityId');
+    return true;
   };
 
   const handleCardClick = (key) => {
@@ -255,9 +269,9 @@ export default function DashboardPage() {
   const handleCancel = () => {
     setGroupName('');
     setOpportunityId('');
-    setCensus('');
-    setTier('');
-    setCaChecked(false);
+    setCategory('');
+    setProfile('');
+    setOcChecked(false);
     setIsLtd(false);
     setSelectedFile(null);
     setCurrentStep(0);
@@ -267,9 +281,9 @@ export default function DashboardPage() {
     setFieldErrors({});
   };
 
-  const handleCensusChange = (event) => {
-    setCensus(event.target.value);
-    clearFieldError('census');
+  const handleCategoryChange = (event) => {
+    setCategory(event.target.value);
+    clearFieldError('category');
     setVoAddError('');
     setVoAddSuccess('');
   };
@@ -278,16 +292,16 @@ export default function DashboardPage() {
     const nextErrors = {};
     const normalizedOpportunityId = opportunityId.trim();
 
-    if (!census) {
-      nextErrors.census = 'Census is required.';
+    if (!category) {
+      nextErrors.category = 'Category is required.';
     }
 
-    if (!tier) {
-      nextErrors.tier = 'Tier is required.';
+    if (!profile) {
+      nextErrors.profile = 'Profile is required.';
     }
 
-    if (normalizedOpportunityId && !/^Opp-\d{9}$/.test(normalizedOpportunityId)) {
-      nextErrors.opportunityId = 'Opportunity ID invalid ex: Opp-001234567';
+    if (normalizedOpportunityId && !/^Opp-\d{9}$/i.test(normalizedOpportunityId)) {
+      nextErrors.opportunityId = 'Opportunity ID format: Opp-123456789';
     }
 
     setFieldErrors(nextErrors);
@@ -308,13 +322,13 @@ export default function DashboardPage() {
       return;
     }
 
-    const normalizedCensus = census;
+    const normalizedCategory = category;
 
     const isDuplicate = voProducts.some(
       (product) =>
         product.opportunityId === normalizedOpportunityId &&
-        product.censusKey === normalizedCensus &&
-        product.tier === tier
+        product.categoryKey === normalizedCategory &&
+        product.profile === profile
     );
 
     if (isDuplicate) {
@@ -325,27 +339,25 @@ export default function DashboardPage() {
     setVoProducts((prev) => [
       ...prev,
       {
-        id: `${normalizedOpportunityId || 'no-opp'}-${normalizedCensus}-${tier}-${Date.now()}`,
+        id: `${normalizedOpportunityId || 'no-opp'}-${normalizedCategory}-${profile}-${Date.now()}`,
         opportunityId: normalizedOpportunityId,
-        census,
-        censusKey: normalizedCensus,
-        tier,
-        caChecked,
+        category,
+        categoryKey: normalizedCategory,
+        profile,
+        ocChecked,
       },
     ]);
 
     setVoAddError('');
 
     setOpportunityId('');
-    setCensus('');
-    setTier('');
-    setCaChecked(false);
-
+    setCategory('');
+    setProfile('');
     setFieldErrors((prev) => ({
       ...prev,
       opportunityId: '',
-      census: '',
-      tier: '',
+      category: '',
+      profile: '',
     }));
   };
 
@@ -395,7 +407,7 @@ export default function DashboardPage() {
 
   const isNextDisabled =
     currentStep === 0
-      ? !isStepOneValid()
+      ? !isStepOneValid() || !isOppIdValid
       : currentStep === 1
       ? !selectedFile
       : currentStep >= 2;
@@ -414,29 +426,30 @@ export default function DashboardPage() {
           setGroupName={setGroupName}
           opportunityId={opportunityId}
           setOpportunityId={setOpportunityId}
-          census={census}
-          setCensus={setCensus}
-          tier={tier}
-          setTier={setTier}
-          caChecked={caChecked}
-          setCaChecked={setCaChecked}
+          category={category}
+          setCategory={setCategory}
+          profile={profile}
+          setProfile={setProfile}
+          ocChecked={ocChecked}
+          setOcChecked={setOcChecked}
           isLtd={isLtd}
           setIsLtd={setIsLtd}
           fieldErrors={fieldErrors}
           setVoAddError={setVoAddError}
           setVoAddSuccess={setVoAddSuccess}
           clearFieldError={clearFieldError}
+          validateOpportunityId={validateOpportunityId}
           handleAddVoProduct={handleAddVoProduct}
           isVoAddEnabled={isVoAddEnabled}
-          isCaEnabled={isCaEnabled}
-          usedCensus={usedCensus}
+          isOcEnabled={isOcEnabled}
+          usedCategories={usedCategories}
           productBoxProps={{
             titleCount: productCount,
             useCaseFamily,
             selectedUseCase,
             products: voProducts,
-            formatCensusLabel,
-            formatTierLabel,
+            formatCategoryLabel,
+            formatProfileLabel,
             onDeleteProduct: handleDeleteVoProduct,
           }}
         />
@@ -455,33 +468,34 @@ export default function DashboardPage() {
           setGroupName={setGroupName}
           opportunityId={opportunityId}
           setOpportunityId={setOpportunityId}
-          census={census}
-          setCensus={setCensus}
-          tier={tier}
-          setTier={setTier}
-          caChecked={caChecked}
-          setCaChecked={setCaChecked}
+          category={category}
+          setCategory={setCategory}
+          profile={profile}
+          setProfile={setProfile}
+          ocChecked={ocChecked}
+          setOcChecked={setOcChecked}
           isLtd={isLtd}
           setIsLtd={setIsLtd}
           fieldErrors={fieldErrors}
           setVoAddError={setVoAddError}
           setVoAddSuccess={setVoAddSuccess}
           clearFieldError={clearFieldError}
+          validateOpportunityId={validateOpportunityId}
           handleAddVoProduct={handleAddVoProduct}
           isVoAddEnabled={isVoAddEnabled}
-          isCaEnabled={isCaEnabled}
-          usedCensus={usedCensus}
+          isOcEnabled={isOcEnabled}
+          usedCategories={usedCategories}
           mode="processing"
-          formatCensusLabel={formatCensusLabel}
-          formatTierLabel={formatTierLabel}
+          formatCategoryLabel={formatCategoryLabel}
+          formatProfileLabel={formatProfileLabel}
           showOverlay
           productBoxProps={{
             titleCount: productCount,
             useCaseFamily,
             selectedUseCase,
             products: voProducts,
-            formatCensusLabel,
-            formatTierLabel,
+            formatCategoryLabel,
+            formatProfileLabel,
             onDeleteProduct: handleDeleteVoProduct,
           }}
         />
@@ -496,15 +510,15 @@ export default function DashboardPage() {
         selectedUseCase={selectedUseCase}
         selectedFile={selectedFile}
         columns={[
-          { key: 'census', header: 'Census' },
-          { key: 'tier', header: 'Tier' },
-          { key: 'ca', header: 'CA' },
+          { key: 'category', header: 'Category' },
+          { key: 'profile', header: 'Profile' },
+          { key: 'oc', header: 'OC' },
           { key: 'opportunityId', header: 'Opportunity ID' },
         ]}
         data={voProducts.map((product) => ({
-          census: formatCensusLabel(product.census),
-          tier: formatTierLabel(product.tier),
-          ca: product.caChecked ? 'Yes' : 'No',
+          category: formatCategoryLabel(product.category),
+          profile: formatProfileLabel(product.profile),
+          oc: product.ocChecked ? 'Yes' : 'No',
           opportunityId: product.opportunityId || 'N/A',
         }))}
       >

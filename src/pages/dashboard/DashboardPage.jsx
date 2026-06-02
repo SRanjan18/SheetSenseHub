@@ -123,7 +123,7 @@ const [ingestionResponse, setIngestionResponse] = useState(null);
       ));
 
   const isOppIdValid =
-    opportunityId.trim().length === 0 || /^Opp-\d{9}$/i.test(opportunityId.trim());
+    opportunityId.trim().length === 0 || /^Opp-\d{9}$/.test(opportunityId.trim());
   const usedCategories = useMemo(
     () => new Set(voProducts.map((product) => product.category)),
     [voProducts]
@@ -176,7 +176,7 @@ const validateOpportunityId = (value) => {
     return true;
   }
 
-  if (!/^Opp-\d{9}$/i.test(normalizedOpportunityId)) {
+  if (!/^Opp-\d{9}$/.test(normalizedOpportunityId)) {
     setFieldErrors((prev) => ({
       ...prev,
       opportunityId: 'Opportunity ID format: Opp-123456789',
@@ -364,7 +364,7 @@ const handleCancel = () => {
       nextErrors.profile = 'Profile is required.';
     }
 
-    if (normalizedOpportunityId && !/^Opp-\d{9}$/i.test(normalizedOpportunityId)) {
+    if (normalizedOpportunityId && !/^Opp-\d{9}$/.test(normalizedOpportunityId)) {
       nextErrors.opportunityId = 'Opportunity ID format: Opp-123456789';
     }
 

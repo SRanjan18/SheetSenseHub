@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 
 const STEP_TITLES = ['Enter Information', 'Upload File', 'Processing', 'Output'];
-
+const INGESTION_API_URL = '';
 const USE_CASE_FAMILY_MAP = {
   'BillingHub (BH)': 'sb',
   'OpsFlow (OF)': 'vo-group',
@@ -172,6 +172,9 @@ export default function DashboardPage() {
   const [voAddError, setVoAddError] = useState('');
   const [voAddSuccess, setVoAddSuccess] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [ingestionLoading, setIngestionLoading] = useState(false);
+const [ingestionError, setIngestionError] = useState('');
+const [ingestionResponse, setIngestionResponse] = useState(null);
 
   const cards = getCardsForFamily(useCaseFamily);
   const showStepper = useCaseFamily !== 'search-group';
@@ -200,20 +203,27 @@ export default function DashboardPage() {
   }, [useCaseFamily, voProducts.length]);
 
   useEffect(() => {
-    if (currentStep !== 2) return undefined;
-
-    const timerId = setTimeout(() => {
-      setCurrentStep(3);
-    }, 1600);
-
-    return () => clearTimeout(timerId);
-  }, [currentStep]);
-
-  useEffect(() => {
     if (!isOcEnabled && ocChecked) {
       setOcChecked(false);
     }
   }, [isOcEnabled, ocChecked]);
+  useEffect(() => {
+  setGroupName('');
+  setOpportunityId('');
+  setCategory('');
+  setProfile('');
+  setOcChecked(false);
+  setIsLtd(false);
+  setSelectedFile(null);
+  setCurrentStep(0);
+  setVoProducts([]);
+  setVoAddError('');
+  setVoAddSuccess('');
+  setFieldErrors({});
+  setIngestionLoading(false);
+  setIngestionError('');
+  setIngestionResponse(null);
+}, [selectedUseCase]);
 
   const clearFieldError = (field) => {
     setFieldErrors((prev) => ({
@@ -222,26 +232,150 @@ export default function DashboardPage() {
     }));
   };
 
-  const validateOpportunityId = () => {
-    const normalizedOpportunityId = opportunityId.trim();
+const validateOpportunityId = (value) => {
+  const normalizedOpportunityId =
+    typeof value === 'string' ? value.trim() : opportunityId.trim();
 
-    if (!normalizedOpportunityId) {
-      clearFieldError('opportunityId');
-      return true;
-    }
-
-    if (!/^Opp-\d{9}$/i.test(normalizedOpportunityId)) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        opportunityId: 'Opportunity ID format: Opp-123456789',
-      }));
-      return false;
-    }
-
+  if (!normalizedOpportunityId) {
     clearFieldError('opportunityId');
     return true;
+  }
+
+  if (!/^Opp-\d{9}$/i.test(normalizedOpportunityId)) {
+    setFieldErrors((prev) => ({
+      ...prev,
+      opportunityId: 'Opportunity ID format: Opp-123456789',
+    }));
+    return false;
+  }
+
+  clearFieldError('opportunityId');
+  return true;
+};
+const buildIngestionPayload = () => {
+  const normalizedOpportunityId = opportunityId.trim();
+
+  const payload = {
+    use_case: selectedUseCase || '',
+    group_name: groupName.trim(),
+    opportunity_id: normalizedOpportunityId,
+    orthodontic_coverage: Boolean(ocChecked),
+    file_name: selectedFile?.name || '',
   };
 
+  if (selectedUseCase === 'BillingHub (BH)') {
+    payload.is_ltd = Boolean(isLtd);
+    return payload;
+  }
+
+  payload.products =
+    useCaseFamily === 'vo-group'
+      ? voProducts.map((product) => ({
+          category: product.category,
+          profile: product.profile,
+        }))
+      : category && profile
+      ? [
+          {
+            category,
+            profile,
+          },
+        ]
+      : [];
+
+  return payload;
+};
+const submitIngestion = async () => {
+  const payload = buildIngestionPayload();
+
+  console.log('Ingestion payload >>>', JSON.stringify(payload, null, 2));
+
+  setIngestionLoading(true);
+  setIngestionError('');
+  setIngestionResponse(null);
+
+  try {
+    const productsForResponse = Array.isArray(payload.products) ? payload.products : [];
+
+    // MOCK FLOW FOR NOW
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    const mockResponse = {
+      success: true,
+      body: productsForResponse.length
+        ? productsForResponse.map((product, index) => ({
+            id: index + 1,
+            category: product.category,
+            profile: product.profile,
+            orthodontic_coverage: payload.orthodontic_coverage ? 'Yes' : 'No',
+            opportunity_id: payload.opportunity_id || 'N/A',
+            group_name: payload.group_name || 'N/A',
+            use_case: payload.use_case || 'N/A',
+            file_name: payload.file_name || 'N/A',
+            is_ltd:
+              payload.use_case === 'BillingHub (BH)'
+                ? Boolean(payload.is_ltd)
+                  ? 'Yes'
+                  : 'No'
+                : 'N/A',
+          }))
+        : [
+            {
+              id: 1,
+              category: 'N/A',
+              profile: 'N/A',
+              orthodontic_coverage: payload.orthodontic_coverage ? 'Yes' : 'No',
+              opportunity_id: payload.opportunity_id || 'N/A',
+              group_name: payload.group_name || 'N/A',
+              use_case: payload.use_case || 'N/A',
+              file_name: payload.file_name || 'N/A',
+              is_ltd:
+                payload.use_case === 'BillingHub (BH)'
+                  ? Boolean(payload.is_ltd)
+                    ? 'Yes'
+                    : 'No'
+                  : 'N/A',
+            },
+          ],
+    };
+
+    setIngestionResponse(mockResponse);
+    return mockResponse;
+
+    /*
+    // FUTURE REAL API FLOW - UNCOMMENT LATER
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('payload', JSON.stringify(payload));
+
+    const response = await fetch('ADD_YOUR_API_URL_HERE', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ingestion failed with status ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    const safeResult = {
+      ...result,
+      body: Array.isArray(result?.body) ? result.body : [],
+    };
+
+    setIngestionResponse(safeResult);
+    return safeResult;
+    */
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Something went wrong during ingestion.';
+    setIngestionError(message);
+    throw error;
+  } finally {
+    setIngestionLoading(false);
+  }
+};
   const handleCardClick = (key) => {
     if (key === 'report') {
       navigate('/report');
@@ -266,20 +400,23 @@ export default function DashboardPage() {
     setCurrentStep(0);
   };
 
-  const handleCancel = () => {
-    setGroupName('');
-    setOpportunityId('');
-    setCategory('');
-    setProfile('');
-    setOcChecked(false);
-    setIsLtd(false);
-    setSelectedFile(null);
-    setCurrentStep(0);
-    setVoProducts([]);
-    setVoAddError('');
-    setVoAddSuccess('');
-    setFieldErrors({});
-  };
+const handleCancel = () => {
+  setGroupName('');
+  setOpportunityId('');
+  setCategory('');
+  setProfile('');
+  setOcChecked(false);
+  setIsLtd(false);
+  setSelectedFile(null);
+  setCurrentStep(0);
+  setVoProducts([]);
+  setVoAddError('');
+  setVoAddSuccess('');
+  setFieldErrors({});
+  setIngestionLoading(false);
+  setIngestionError('');
+  setIngestionResponse(null);
+};
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
@@ -383,21 +520,33 @@ export default function DashboardPage() {
     return false;
   };
 
-  const handleNext = () => {
-    if (currentStep === 0) {
-      setCurrentStep(1);
-      return;
-    }
+const handleNext = async () => {
+  if (currentStep === 0) {
+    setCurrentStep(1);
+    return;
+  }
 
-    if (currentStep === 1 && selectedFile) {
-      setCurrentStep(2);
+  if (currentStep === 1 && selectedFile) {
+    setCurrentStep(2); // show Processing step immediately
+
+    try {
+      const result = await submitIngestion();
+
+      if (result?.success !== false) {
+        setCurrentStep(3); // move to Output only after API/mock returns
+      }
+    } catch (error) {
+      // stay on processing step and show error there
     }
-  };
+  }
+};
 
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1);
     }
+
+    setIngestionError('');
   };
 
   const handleFileChange = (event) => {
@@ -405,12 +554,12 @@ export default function DashboardPage() {
     setSelectedFile(file);
   };
 
-  const isNextDisabled =
-    currentStep === 0
-      ? !isStepOneValid() || !isOppIdValid
-      : currentStep === 1
-      ? !selectedFile
-      : currentStep >= 2;
+const isNextDisabled =
+  currentStep === 0
+    ? !isStepOneValid() || !isOppIdValid
+    : currentStep === 1
+    ? !selectedFile
+    : true;
 
   const renderStepContent = () => {
         // CHANGED: for VAQ/SHAQ show only the hero cards, not the lower empty search area
@@ -460,70 +609,95 @@ export default function DashboardPage() {
       return <UploadFile selectedFile={selectedFile} onFileChange={handleFileChange} />;
     }
 
-    if (currentStep === 2) {
-      return (
-        <EnterInformation
-          useCaseFamily={useCaseFamily}
-          groupName={groupName}
-          setGroupName={setGroupName}
-          opportunityId={opportunityId}
-          setOpportunityId={setOpportunityId}
-          category={category}
-          setCategory={setCategory}
-          profile={profile}
-          setProfile={setProfile}
-          ocChecked={ocChecked}
-          setOcChecked={setOcChecked}
-          isLtd={isLtd}
-          setIsLtd={setIsLtd}
-          fieldErrors={fieldErrors}
-          setVoAddError={setVoAddError}
-          setVoAddSuccess={setVoAddSuccess}
-          clearFieldError={clearFieldError}
-          validateOpportunityId={validateOpportunityId}
-          handleAddVoProduct={handleAddVoProduct}
-          isVoAddEnabled={isVoAddEnabled}
-          isOcEnabled={isOcEnabled}
-          usedCategories={usedCategories}
-          mode="processing"
-          formatCategoryLabel={formatCategoryLabel}
-          formatProfileLabel={formatProfileLabel}
-          showOverlay
-          productBoxProps={{
-            titleCount: productCount,
-            useCaseFamily,
-            selectedUseCase,
-            products: voProducts,
-            formatCategoryLabel,
-            formatProfileLabel,
-            onDeleteProduct: handleDeleteVoProduct,
+  if (currentStep === 2) {
+  return (
+    <div>
+      {ingestionError ? (
+        <div
+          style={{
+            marginBottom: '12px',
+            padding: '12px 16px',
+            borderRadius: '10px',
+            background: '#ffe8e8',
+            border: '1px solid #f3b3b3',
+            color: '#b42318',
+            fontWeight: 600,
           }}
-        />
-      );
-    }
+        >
+          {ingestionError}
+        </div>
+      ) : null}
 
-    return (
-      <OutputTable
+      <EnterInformation
+        useCaseFamily={useCaseFamily}
         groupName={groupName}
+        setGroupName={setGroupName}
         opportunityId={opportunityId}
-        productsCount={voProducts.length}
-        selectedUseCase={selectedUseCase}
-        selectedFile={selectedFile}
-        columns={[
-          { key: 'category', header: 'Category' },
-          { key: 'profile', header: 'Profile' },
-          { key: 'oc', header: 'OC' },
-          { key: 'opportunityId', header: 'Opportunity ID' },
-        ]}
-        data={voProducts.map((product) => ({
-          category: formatCategoryLabel(product.category),
-          profile: formatProfileLabel(product.profile),
-          oc: product.ocChecked ? 'Yes' : 'No',
-          opportunityId: product.opportunityId || 'N/A',
-        }))}
-      >
-      </OutputTable>
-    );
+        setOpportunityId={setOpportunityId}
+        category={category}
+        setCategory={setCategory}
+        profile={profile}
+        setProfile={setProfile}
+        ocChecked={ocChecked}
+        setOcChecked={setOcChecked}
+        isLtd={isLtd}
+        setIsLtd={setIsLtd}
+        fieldErrors={fieldErrors}
+        setVoAddError={setVoAddError}
+        setVoAddSuccess={setVoAddSuccess}
+        clearFieldError={clearFieldError}
+        validateOpportunityId={validateOpportunityId}
+        handleAddVoProduct={handleAddVoProduct}
+        isVoAddEnabled={isVoAddEnabled}
+        isOcEnabled={isOcEnabled}
+        usedCategories={usedCategories}
+        showOverlay={ingestionLoading}
+        loadingMessage="Please wait, your file is being processed"
+        productBoxProps={{
+          titleCount: productCount,
+          useCaseFamily,
+          selectedUseCase,
+          products: voProducts,
+          formatCategoryLabel,
+          formatProfileLabel,
+          onDeleteProduct: handleDeleteVoProduct,
+        }}
+      />
+    </div>
+  );
+}
+
+ return (
+  <OutputTable
+    groupName={groupName}
+    opportunityId={opportunityId}
+    productsCount={ingestionResponse?.body?.length || voProducts.length}
+    selectedUseCase={selectedUseCase}
+    selectedFile={selectedFile}
+    columns={[
+      { key: 'category', header: 'Category' },
+      { key: 'profile', header: 'Profile' },
+      { key: 'orthodontic_coverage', header: 'OC' },
+      { key: 'opportunity_id', header: 'Opportunity ID' },
+      { key: 'group_name', header: 'Group Name' },
+      { key: 'use_case', header: 'Use Case' },
+      { key: 'file_name', header: 'File Name' },
+    ]}
+    data={
+      ingestionResponse?.body?.length
+        ? ingestionResponse.body
+        : voProducts.map((product) => ({
+            category: formatCategoryLabel(product.category),
+            profile: formatProfileLabel(product.profile),
+            orthodontic_coverage: ocChecked ? 'Yes' : 'No',
+            opportunity_id: product.opportunityId || opportunityId || 'N/A',
+            group_name: groupName || 'N/A',
+            use_case: selectedUseCase || 'N/A',
+            file_name: selectedFile?.name || 'N/A',
+          }))
+    }
+  />
+);
   };
 
   return (
@@ -603,12 +777,6 @@ export default function DashboardPage() {
                   onClick={handleNext}
                 >
                   Next →
-                </button>
-              )}
-
-              {currentStep === 3 && (
-                <button className="dashboard-next-btn" onClick={handleCancel} type="button">
-                  Start Over
                 </button>
               )}
 

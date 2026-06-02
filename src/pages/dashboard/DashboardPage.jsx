@@ -92,23 +92,30 @@ function getCardsForFamily(useCaseFamily) {
 
 function formatCensusLabel(value) {
   const map = {
-    'census-a': 'MED:MLC-NO-GRA',
-    'census-b': 'MED:SUB',
-    'census-c': 'DEN:CORE',
-    'census-d': 'VIS:BASIC',
+    'census-a': 'DEN:BASIC',
+    'census-b': 'DEN:CORE',
+    'census-c': 'DEN:PREMIER',
+    'census-d': 'VIS:*',
+    'DEN:BASIC': 'DEN:BASIC',
+    'DEN:CORE': 'DEN:CORE',
+    'DEN:PREMIER': 'DEN:PREMIER',
+    'VIS:*': 'VIS:*',
   };
 
-  return map[value] ?? value.replace('census-', '').toUpperCase();
+  return map[value] ?? value;
 }
 
 function formatTierLabel(value) {
   const map = {
-    'tier-1': 'T1',
-    'tier-2': 'T2',
-    'tier-3': 'T3',
+    'tier-1': 'STANDARD',
+    'tier-2': 'ADVANCED',
+    'tier-3': 'STRICT',
+    STANDARD: 'STANDARD',
+    ADVANCED: 'ADVANCED',
+    STRICT: 'STRICT',
   };
 
-  return map[value] ?? value.replace('tier-', 'T').toUpperCase();
+  return map[value] ?? value;
 }
 
 const StyledStepper = styled(Stepper)(() => ({
@@ -174,13 +181,14 @@ export default function DashboardPage() {
   const showStepper = useCaseFamily !== 'search-group';
   const sectionTitle = useCaseFamily === 'search-group' ? '' : 'File Station';
 
-  const hasCaCensus =
-    census === 'census-c' ||
-    census === 'census-d' ||
-    voProducts.some(
-      (product) => product.census === 'census-c' || product.census === 'census-d'
-    );
-  const isCaEnabled = useCaseFamily === 'vo-group' && hasCaCensus;
+  const isCaEnabled =
+    useCaseFamily === 'vo-group' &&
+    (census === 'DEN:CORE' ||
+      census === 'DEN:PREMIER' ||
+      voProducts.some(
+        (product) =>
+          product.census === 'DEN:CORE' || product.census === 'DEN:PREMIER'
+      ));
 
   const isOppIdValid =
     opportunityId.trim().length === 0 || /^Opp-\d{9}$/.test(opportunityId.trim());

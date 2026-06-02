@@ -146,7 +146,7 @@ export default function EnterInformation({
             <div className="dashboard-row-two">
               <div>
                 <label className="dashboard-field-label">
-                  Census <span>*</span>
+                  Category <span>*</span>
                 </label>
                 <select
                   className={`dashboard-select ${
@@ -161,17 +161,26 @@ export default function EnterInformation({
                   }}
                 >
                   <option value="">Select</option>
-                  <option value="census-a" disabled={usedCensus.has('census-a')}>
-                    MED:MLC-NO-GRA
+                  <option value="DEN:BASIC" disabled={usedCensus.has('DEN:BASIC')}>
+                    DEN:BASIC
                   </option>
-                  <option value="census-b" disabled={usedCensus.has('census-b')}>
-                    MED:SUB
-                  </option>
-                  <option value="census-c" disabled={usedCensus.has('census-c')}>
+                  <option value="DEN:CORE" disabled={usedCensus.has('DEN:CORE')}>
                     DEN:CORE
                   </option>
-                  <option value="census-d" disabled={usedCensus.has('census-d')}>
+                  <option value="DEN:PREMIER" disabled={usedCensus.has('DEN:PREMIER')}>
+                    DEN:PREMIER
+                  </option>
+                  <option value="VIS:BASIC" disabled={usedCensus.has('VIS:BASIC')}>
                     VIS:BASIC
+                  </option>
+                   <option value="VIS:STANDARD" disabled={usedCensus.has('VIS:STANDARD')}>
+                    VIS:STANDARD
+                  </option>
+                   <option value="VIS:ESSENTIAL" disabled={usedCensus.has('VIS:ESSENTIAL')}>
+                   VIS:ESSENTIAL
+                  </option>
+                   <option value="VIS:PLUS" disabled={usedCensus.has('VIS:PLUS')}>
+                    VIS:PLUS
                   </option>
                 </select>
                 {fieldErrors.census && (
@@ -183,7 +192,7 @@ export default function EnterInformation({
 
               <div>
                 <label className="dashboard-field-label">
-                  Tier <span>*</span>
+                  Validation Profile <span>*</span>
                 </label>
                 <select
                   className={`dashboard-select ${
@@ -198,9 +207,9 @@ export default function EnterInformation({
                   }}
                 >
                   <option value="">Select</option>
-                  <option value="tier-1">T1</option>
-                  <option value="tier-2">T2</option>
-                  <option value="tier-3">T3</option>
+                  <option value="STANDARD">STANDARD</option>
+                  <option value="ADVANCED">ADVANCED</option>
+                  <option value="STRICT">STRICT</option>
                 </select>
                 {fieldErrors.tier && (
                   <p className="dashboard-vo-msg dashboard-vo-msg--error">{fieldErrors.tier}</p>
@@ -232,7 +241,7 @@ export default function EnterInformation({
                 disabled={!isCaEnabled}
                 onChange={(e) => setCaChecked(e.target.checked)}
               />
-              <span>CA</span>
+              <span>Orthodontic Coverage</span>
             </label>
           </div>
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUseCase } from '../../context/UseCaseContext';
+import { useUseCase } from '../../context/UsecaseContext';
 import './DashboardPage.css';
 import { styled } from '@mui/material/styles';
 import OutputTable from './steps/OutputTable';

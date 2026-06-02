@@ -1,0 +1,22 @@
+.simple-table-wrapper {
+  overflow-x: auto;
+}
+
+.simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.simple-table th,
+.simple-table td {
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.simple-table th {
+  background: #f8fafc;
+  font-weight: 700;
+}

@@ -1,0 +1,24 @@
+.date-range-filter {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.date-range-filter__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.date-range-filter__field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.date-range-filter__field input {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 12px;
+}

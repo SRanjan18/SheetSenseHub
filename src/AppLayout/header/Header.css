@@ -1,0 +1,128 @@
+.shell-header {
+  background: #ffffff !important;
+  color: #0a2a75 !important;
+  border-bottom: 1px solid #ececec;
+}
+
+.shell-header__toolbar {
+  min-height: 60px !important;
+  padding: 0 14px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shell-header__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.shell-logo {
+  color: #0a2a75;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.05 !important;
+}
+
+.shell-divider {
+  width: 1px;
+  height: 32px;
+  background: #d7d7d7;
+}
+
+.shell-product {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: #666 !important;
+}
+
+.shell-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.shell-link {
+  text-transform: none !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  min-width: auto !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #0a2a75 !important;
+}
+
+.shell-link:hover {
+  background: rgba(10, 49, 137, 0.08) !important;
+}
+
+.shell-link--nav {
+  background: transparent !important;
+}
+
+.shell-link--active-tab {
+  background: #0a3189 !important;
+  color: #ffffff !important;
+}
+
+.shell-link--active-tab:hover {
+  background: #08296f !important;
+}
+
+.shell-dropdown-paper {
+  margin-top: 8px !important;
+  min-width: 260px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16) !important;
+  overflow: hidden;
+}
+
+.shell-dropdown-item {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #1f69d2 !important;
+  padding: 10px 14px !important;
+}
+
+.shell-dropdown-item.Mui-selected {
+  background: rgba(10, 49, 137, 0.08) !important;
+  color: #0a3189 !important;
+}
+
+.shell-dropdown-item.Mui-selected:hover {
+  background: rgba(10, 49, 137, 0.12) !important;
+}
+
+.shell-user-trigger {
+  text-transform: none !important;
+  color: #0a2a75 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  border-radius: 12px !important;
+  padding: 6px 10px !important;
+  min-width: auto !important;
+}
+
+.shell-user-trigger:hover {
+  background: rgba(10, 49, 137, 0.08) !important;
+}
+
+.shell-user-trigger__text {
+  margin-left: 6px;
+}
+
+.shell-user-badge {
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  background: #0a2a75 !important;
+}
+
+.shell-user-popover {
+  margin-top: 10px;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}

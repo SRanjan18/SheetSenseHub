@@ -1,0 +1,19 @@
+.file-upload {
+  margin-bottom: 16px;
+}
+
+.file-upload__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0b5cab;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.file-upload__input {
+  display: none;
+}

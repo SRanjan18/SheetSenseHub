@@ -2,17 +2,19 @@
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at top, rgba(95, 127, 189, 0.18), transparent 24%),
+    linear-gradient(180deg, #f5f8ff 0%, #ffffff 100%);
 }
 
 .auth-screen__left {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 10% 10%, rgba(255, 125, 180, 0.9) 0, rgba(255, 125, 180, 0.3) 14%, transparent 30%),
-    radial-gradient(circle at 70% 20%, rgba(255, 126, 185, 0.7) 0, rgba(255, 126, 185, 0.2) 18%, transparent 32%),
-    radial-gradient(circle at 30% 85%, rgba(255, 121, 180, 0.6) 0, rgba(255, 121, 180, 0.15) 18%, transparent 34%),
-    linear-gradient(180deg, #5c1b64 0%, #301049 100%);
+    radial-gradient(circle at 10% 12%, rgba(124, 160, 255, 0.24) 0, rgba(124, 160, 255, 0.08) 18%, transparent 30%),
+    radial-gradient(circle at 80% 18%, rgba(130, 180, 255, 0.22) 0, rgba(130, 180, 255, 0.08) 16%, transparent 32%),
+    radial-gradient(circle at 35% 85%, rgba(88, 117, 194, 0.18) 0, rgba(88, 117, 194, 0.05) 18%, transparent 32%),
+    linear-gradient(135deg, #0c1e3f 0%, #162d58 45%, #1e3c72 100%);
 }
 
 .auth-screen__left::before,
@@ -28,7 +30,7 @@
   height: 180px;
   left: -10%;
   top: 100px;
-  background: linear-gradient(90deg, rgba(255, 145, 190, 0.25), rgba(255, 145, 190, 0.6));
+  background: linear-gradient(90deg, rgba(126, 157, 220, 0.18), rgba(126, 157, 220, 0.45));
   transform: rotate(-10deg);
 }
 
@@ -37,7 +39,7 @@
   height: 220px;
   left: -20%;
   bottom: 90px;
-  background: linear-gradient(90deg, rgba(255, 145, 190, 0.2), rgba(255, 145, 190, 0.55));
+  background: linear-gradient(90deg, rgba(126, 157, 220, 0.12), rgba(126, 157, 220, 0.38));
   transform: rotate(-8deg);
 }
 
@@ -79,21 +81,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at top, rgba(95, 127, 189, 0.08), transparent 18%),
+    linear-gradient(180deg, #ffffff 0%, #f6f8ff 100%);
 }
 
 .auth-screen__login-panel {
   text-align: center;
   width: 100%;
-  max-width: 360px;
-  padding: 20px;
+  max-width: 380px;
+  padding: 28px 24px;
+  border: 1px solid rgba(95, 127, 189, 0.22);
+  border-radius: 24px;
+  background: rgba(247, 249, 255, 0.95);
+  box-shadow: 0 18px 45px rgba(15, 40, 78, 0.12);
 }
 
 .auth-screen__login-panel h2 {
-  margin: 0 0 8px;
-  color: #0a3189;
+  margin: 0 0 10px;
+  color: #1f4f8b;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 25px;
+  font-size: 23px;
   font-weight: 700;
   line-height: 1.05;
   white-space: nowrap;
@@ -111,7 +119,7 @@
 
 .auth-screen__login-btn {
   border: none;
-  background: #0a3189;
+  background: linear-gradient(135deg, #5f7fbd 0%, #4a77c1 100%);
   color: #fff;
   font-weight: 700;
   font-size: 13px;
@@ -120,8 +128,9 @@
   min-width: 220px;
   cursor: pointer;
   letter-spacing: 0.3px;
+  box-shadow: 0 10px 24px rgba(95, 127, 189, 0.28);
 }
 
 .auth-screen__login-btn:hover {
-  background: #08296f;
+  background: linear-gradient(135deg, #4a6a9e 0%, #3b5d93 100%);
 }

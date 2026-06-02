@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
-import { UseCaseProvider } from './context/UseCaseContext';
+import { UseCaseProvider } from './context/UsecaseContext';
 import { store } from './store/store';
 import './index.css';
 

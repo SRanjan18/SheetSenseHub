@@ -7,12 +7,12 @@ import {
   Typography,
   Box,
 } from '@mui/material';
-import './UseCaseModal.css';
+import './businessModal.css';
 
-export default function UseCaseModal({
+export default function businessModal({
   isOpen,
-  useCases,
-  selectedUseCase,
+  businesses,
+  selectedBusiness,
   onSelect,
 }) {
   return (
@@ -32,21 +32,21 @@ export default function UseCaseModal({
     >
       <DialogContent className="usecase-dialog-content">
         <Typography variant="h3" component="h2" className="usecase-dialog-title">
-          Select UseCase
+          Select Business
         </Typography>
 
         <RadioGroup
-          name="usecase"
-          value={selectedUseCase}
+          name="business"
+          value={selectedBusiness}
           className="usecase-dialog-list"
         >
-          {useCases.map((useCase) => (
-            <Box key={useCase} className="usecase-dialog-option">
+          {businesses.map((business) => (
+            <Box key={business} className="usecase-dialog-option">
               <FormControlLabel
-                value={useCase}
+                value={business}
                 control={
                   <Radio
-                    onChange={() => onSelect(useCase)}
+                    onChange={() => onSelect(business)}
                     sx={{
                       color: '#8a8a8a',
                       '&.Mui-checked': {
@@ -55,7 +55,7 @@ export default function UseCaseModal({
                     }}
                   />
                 }
-                label={useCase}
+                label={business}
                 className="usecase-dialog-label"
               />
             </Box>

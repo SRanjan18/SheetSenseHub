@@ -17,36 +17,36 @@ import UserPanel from './UserPanel/UserPanel';
 import './Header.css';
 
 export default function Header({
-  selectedUseCase,
-  useCases,
-  onUseCaseSelect,
+  selectedBusiness,
+  businesses,
+  onBusinessSelect,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [useCaseAnchorEl, setUseCaseAnchorEl] = useState(null);
+  const [businessAnchorEl, setBusinessAnchorEl] = useState(null);
   const [userAnchorEl, setUserAnchorEl] = useState(null);
 
   const isDashboardRoute = location.pathname === '/dashboard';
-  const isUseCaseMenuOpen = Boolean(useCaseAnchorEl);
+  const isBusinessMenuOpen = Boolean(businessAnchorEl);
   const isUserPanelOpen = Boolean(userAnchorEl);
-  const useCaseLabel = selectedUseCase || 'Select';
+  const businessLabel = selectedBusiness || 'Select';
 
   const handleDashboardClick = () => {
     navigate('/dashboard');
   };
 
-  const handleUseCaseMenuOpen = (event) => {
-    setUseCaseAnchorEl(event.currentTarget);
+  const handleBusinessMenuOpen = (event) => {
+    setBusinessAnchorEl(event.currentTarget);
   };
 
-  const handleUseCaseMenuClose = () => {
-    setUseCaseAnchorEl(null);
+  const handleBusinessMenuClose = () => {
+    setBusinessAnchorEl(null);
   };
 
-  const handleUseCaseSelect = (useCase) => {
-    onUseCaseSelect(useCase);
-    handleUseCaseMenuClose();
+  const handleBusinessSelect = (business) => {
+    onBusinessSelect(business);
+    handleBusinessMenuClose();
   };
 
   const handleUserPanelOpen = (event) => {
@@ -89,18 +89,18 @@ export default function Header({
             <>
               <Button
                 className={`shell-link shell-link--nav ${
-                  isUseCaseMenuOpen ? 'shell-link--active-tab' : ''
+                  isBusinessMenuOpen ? 'shell-link--active-tab' : ''
                 }`}
-                onClick={handleUseCaseMenuOpen}
+                onClick={handleBusinessMenuOpen}
                 endIcon={<KeyboardArrowDownRoundedIcon />}
               >
-                {useCaseLabel}
+                {businessLabel}
               </Button>
 
               <Menu
-                anchorEl={useCaseAnchorEl}
-                open={isUseCaseMenuOpen}
-                onClose={handleUseCaseMenuClose}
+                anchorEl={businessAnchorEl}
+                open={isBusinessMenuOpen}
+                onClose={handleBusinessMenuClose}
                 anchorOrigin={{
                   vertical: 'bottom',
                   horizontal: 'left',
@@ -113,14 +113,14 @@ export default function Header({
                   className: 'shell-dropdown-paper',
                 }}
               >
-                {useCases.map((useCase) => (
+                {businesses.map((business) => (
                   <MenuItem
-                    key={useCase}
-                    selected={selectedUseCase === useCase}
-                    onClick={() => handleUseCaseSelect(useCase)}
+                    key={business}
+                    selected={selectedBusiness === business}
+                    onClick={() => handleBusinessSelect(business)}
                     className="shell-dropdown-item"
                   >
-                    {useCase}
+                    {business}
                   </MenuItem>
                 ))}
               </Menu>
@@ -172,7 +172,7 @@ export default function Header({
           >
             <UserPanel
               userName="Soumya R"
-              role={selectedUseCase || 'SheetSense Hub User'}
+              role={selectedBusiness || 'SheetSense Hub User'}
               email="soumya@example.com"
               onClose={handleUserPanelClose}
             />

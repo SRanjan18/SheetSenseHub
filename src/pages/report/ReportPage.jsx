@@ -1,15 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-  Box,
-  Button,
-  Chip,
-  Container,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-  Autocomplete,
-} from '@mui/material';
+import {Box,Button,Chip,Container,Paper,Stack,TextField,Typography,Autocomplete,} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import SearchIcon from '@mui/icons-material/Search';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -19,72 +9,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 
-const productOptions = [
-  { label: 'SB', value: 'SB' },
-  { label: 'OCC', value: 'OCC' },
-  { label: 'UST:MED:SUB', value: 'UST:MED:SUB' },
-  { label: 'UST:MED:MLC', value: 'UST:MED:MLC' },
-  { label: 'VO:MED:SUB', value: 'VO:MED:SUB' },
+const businessOptions = [
+  { label: 'AccountSphere (AS)', value: 'AccountSphere (AS)' },
+  { label: 'BillingHub (BH)', value: 'BillingHub (BH)' },
+  { label: 'UnderwritePro (UP)', value: 'UnderwritePro (UP)' },
 ];
-
-const mockPayload = [
-  {
-    id: 1,
-    groupName: 'Acme Health Group',
-    opportunityId: 'Opp-001234567',
-    documentName: 'Acme_UW_Document_01.pdf',
-    productType: 'SB',
-    status: 'Success',
-    solarisSubmission: 'Yes',
-    reasonCode: 'RC-101',
-    modifiedBy: 'john.doe',
-    createdDate: '2026-05-31T10:30:00',
-    modifiedDate: '2026-06-01T12:15:00',
-    totalTime: '12m 10s',
-  },
-  {
-    id: 2,
-    groupName: 'Northwind Benefits',
-    opportunityId: 'Opp-001234568',
-    documentName: 'Northwind_Quote_v2.pdf',
-    productType: 'OCC',
-    status: 'Failure',
-    solarisSubmission: 'No',
-    reasonCode: 'RC-404',
-    modifiedBy: 'jane.smith',
-    createdDate: '2026-05-31T11:00:00',
-    modifiedDate: '2026-06-01T13:40:00',
-    totalTime: '08m 42s',
-  },
-  {
-    id: 3,
-    groupName: 'Blue Peak Coverage',
-    opportunityId: 'Opp-001234569',
-    documentName: 'BluePeak_Enrollment.pdf',
-    productType: 'UST:MED:SUB',
-    status: 'In Progress',
-    solarisSubmission: 'Yes',
-    reasonCode: 'RC-222',
-    modifiedBy: 'alex.lee',
-    createdDate: '2026-05-30T09:10:00',
-    modifiedDate: '2026-06-01T09:45:00',
-    totalTime: '21m 03s',
-  },
-  {
-    id: 4,
-    groupName: 'Summit Care Partners',
-    opportunityId: 'Opp-001234570',
-    documentName: 'Summit_Proposal_Final.pdf',
-    productType: 'VO:MED:SUB',
-    status: 'Success',
-    solarisSubmission: 'No',
-    reasonCode: '',
-    modifiedBy: 'mary.jones',
-    createdDate: '2026-05-29T15:20:00',
-    modifiedDate: '2026-06-01T16:00:00',
-    totalTime: '05m 55s',
-  },
-];
+const API_BASE_URL = 'https://sheetsensehubbackend-1.onrender.com';
 
 const formatDateTime = (value) => {
   if (!value) return '';
@@ -92,27 +22,30 @@ const formatDateTime = (value) => {
 };
 
 const getStatusColor = (status) => {
-  const s = String(status || '').toLowerCase();
-  if (s === 'success') return '#2e7d32';
-  if (s === 'failure') return '#d32f2f';
-  if (s === 'in progress') return '#ed6c02';
+  const s = String(status || '').toUpperCase();
+
+  if (s === 'COMPLETED') return '#007000';
+  if (s === 'FAILED') return '#E40046';
+  if (s === 'PROCESSING') return '#F5B700';
+  if (s === 'INGESTED') return '#3a31b0';
+
   return '#616161';
 };
 
 export default function ReportPage() {
   const yesterday = dayjs().subtract(1, 'day');
   const today = dayjs();
-
-  const [selectedProducts, setSelectedProducts] = useState([productOptions[0]]);
+const [selectedBusiness, setSelectedBusiness] = useState(businessOptions[0]);
+const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(yesterday);
   const [endDate, setEndDate] = useState(today);
   const [rows, setRows] = useState([]);
   const [errors, setErrors] = useState({
-    productType: '',
-    startDate: '',
-    endDate: '',
-    range: '',
-  });
+  business: '',
+  startDate: '',
+  endDate: '',
+  range: '',
+});
 
   const validateForm = () => {
     const nextErrors = {
@@ -122,9 +55,9 @@ export default function ReportPage() {
       range: '',
     };
 
-    if (!selectedProducts.length) {
-      nextErrors.productType = 'Product Type is required';
-    }
+   if (!selectedBusiness) {
+  nextErrors.business = 'Business is required';
+}
 
     if (!startDate) {
       nextErrors.startDate = 'Start Date is required';
@@ -142,36 +75,62 @@ export default function ReportPage() {
     return !Object.values(nextErrors).some(Boolean);
   };
 
-  const handleSearch = () => {
-    if (!validateForm()) return;
+const handleSearch = async () => {
+  if (!validateForm()) return;
 
-    const selectedValues = selectedProducts.map((item) => item.value);
+  setLoading(true);
 
-    const filtered = mockPayload.filter((row) => {
-      const matchesProduct = selectedValues.includes(row.productType);
-
-      const created = dayjs(row.createdDate);
-      const matchesStart =
-        !startDate ||
-        created.isAfter(startDate.startOf('day')) ||
-        created.isSame(startDate.startOf('day'));
-      const matchesEnd =
-        !endDate ||
-        created.isBefore(endDate.endOf('day')) ||
-        created.isSame(endDate.endOf('day'));
-
-      return matchesProduct && matchesStart && matchesEnd;
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/ingestions/report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        business: selectedBusiness.value,
+        startDate: startDate.format('YYYY-MM-DD'),
+        endDate: endDate.format('YYYY-MM-DD'),
+      }),
     });
 
-    setRows(filtered);
-  };
+    if (!response.ok) {
+      throw new Error('Failed to fetch report data');
+    }
+
+    const data = await response.json();
+    console.log('Mapping item:', data);
+    const mappedRows = data.map((item, index) => ({
+  
+      id: item.txnUuid || index + 1,
+      txnUuid: item.txnUuid,
+      organization: item.organizationName || item.organization || '',
+      requestId: item.requestId || '',
+      business: item.businessName || item.business || '',
+      status: item.status,
+      outputFileName: item.outputFileName || '',
+      createdDate: item.createdAt,
+      category: item.products.map((cat) => cat.category),
+      profile: item.products.map((cat) => cat.profile),
+      downloadUrl: item.outputFileName
+        ? `${API_BASE_URL}/api/files/download/${item.outputFileName}`
+        : '',
+    }));
+
+    setRows(mappedRows);
+  } catch (error) {
+    console.error(error);
+    setRows([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDownloadCsv = () => {
     const headers = [
-      'Group Name',
-      'Opportunity ID',
+      'Client Organization',
+      'Request ID',
       'Document Name',
-      'Product Type',
+      'Business Process',
       'Status',
       'Solaris Submission',
       'Reason Code',
@@ -182,8 +141,8 @@ export default function ReportPage() {
     ];
 
     const csvRows = rows.map((row) => [
-      row.groupName,
-      row.opportunityId,
+      row.organization,
+      row.requestId,
       row.documentName,
       row.productType,
       row.status,
@@ -216,85 +175,60 @@ export default function ReportPage() {
     document.body.removeChild(link);
   };
 
-  const columns = useMemo(
-    () => [
-      { field: 'groupName', headerName: 'Group Name', flex: 1.4, minWidth: 180 },
-      {
-        field: 'opportunityId',
-        headerName: 'Opportunity ID',
-        flex: 1.2,
-        minWidth: 160,
-      },
-      {
-        field: 'documentName',
-        headerName: 'Document Name',
-        flex: 1.5,
-        minWidth: 200,
-      },
-      {
-        field: 'productType',
-        headerName: 'Product Type',
-        flex: 1,
-        minWidth: 140,
-      },
-      {
-        field: 'status',
-        headerName: 'Status',
-        flex: 1,
-        minWidth: 130,
-        renderCell: (params) => (
-          <Chip
+ const columns = useMemo(
+  () => [
+    { field: 'txnUuid', headerName: 'Transaction ID', flex: 1.5, minWidth: 220 },
+    { field: 'organization', headerName: 'Organization', flex: 1.2, minWidth: 180 },
+    { field: 'requestId', headerName: 'Request ID', flex: 1, minWidth: 150 },
+    { field: 'business', headerName: 'Business', flex: 1.2, minWidth: 180 },
+    { field: 'category', headerName: 'Category', flex: 1, minWidth: 140 },
+    { field: 'profile', headerName: 'Profile', flex: 1, minWidth: 130 },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      minWidth: 130,
+      renderCell: (params) => (
+        <Chip
+          size="small"
+          label={params.value}
+          sx={{
+            backgroundColor: `${getStatusColor(params.value)}15`,
+            color: getStatusColor(params.value),
+            fontWeight: 600,
+          }}
+        />
+      ),
+    },
+    { field: 'outputFileName', headerName: 'Output File', flex: 1.8, minWidth: 260 },
+    {
+      field: 'createdDate',
+      headerName: 'Created Date',
+      flex: 1.3,
+      minWidth: 180,
+      valueFormatter: (value) => formatDateTime(String(value || '')),
+    },
+    {
+      field: 'download',
+      headerName: 'Download',
+      flex: 0.8,
+      minWidth: 130,
+      renderCell: (params) =>
+        params.row.downloadUrl ? (
+          <Button
             size="small"
-            label={params.value}
-            sx={{
-              backgroundColor: `${getStatusColor(params.value)}15`,
-              color: getStatusColor(params.value),
-              fontWeight: 600,
-            }}
-          />
+            startIcon={<DownloadIcon />}
+            onClick={() => window.open(params.row.downloadUrl, '_blank')}
+          >
+            File
+          </Button>
+        ) : (
+          '-'
         ),
-      },
-      {
-        field: 'solarisSubmission',
-        headerName: 'Solaris Submission',
-        flex: 1.1,
-        minWidth: 170,
-      },
-      {
-        field: 'reasonCode',
-        headerName: 'Reason Code',
-        flex: 1,
-        minWidth: 140,
-      },
-      {
-        field: 'modifiedBy',
-        headerName: 'Modified By',
-        flex: 1,
-        minWidth: 140,
-      },
-      {
-        field: 'createdDate',
-        headerName: 'Created Date',
-        flex: 1.3,
-        minWidth: 180,
-        valueFormatter: (value) => formatDateTime(String(value || '')),
-      },
-      {
-        field: 'modifiedDate',
-        headerName: 'Modified Date',
-        flex: 1.3,
-        minWidth: 180,
-        valueFormatter: (value) => formatDateTime(String(value || '')),
-      },
-      {
-        field: 'totalTime',
-        headerName: 'Total Time',
-        flex: 1,
-        minWidth: 120,
-      },
-    ],
-    []
-  );
+    },
+  ],
+  []
+);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -330,20 +264,19 @@ export default function ReportPage() {
             >
               <Box sx={{ minWidth: 320, flex: 1.6 }}>
                 <Autocomplete
-                  multiple
-                  options={productOptions}
-                  value={selectedProducts}
-                  onChange={(_, value) => setSelectedProducts(value)}
-                  getOptionLabel={(option) => option.label}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Product Type *"
-                      error={!!errors.productType}
-                      helperText={errors.productType}
-                    />
-                  )}
-                />
+  options={businessOptions}
+  value={selectedBusiness}
+  onChange={(_, value) => setSelectedBusiness(value)}
+  getOptionLabel={(option) => option.label}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Business *"
+      error={!!errors.business}
+      helperText={errors.business}
+    />
+  )}
+/>
               </Box>
 
               <Box sx={{ minWidth: 220 }}>
@@ -432,6 +365,7 @@ export default function ReportPage() {
               <DataGrid
                 rows={rows}
                 columns={columns}
+                 loading={loading}
                 disableRowSelectionOnClick
                 pageSizeOptions={[5, 10, 25, 50]}
                 initialState={{

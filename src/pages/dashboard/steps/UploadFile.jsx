@@ -3,7 +3,7 @@ export default function UploadFile({ selectedFile, onFileChange }) {
     <div className="dashboard-form-shell dashboard-form-shell--center">
       <div className="dashboard-upload-panel">
         <div className="dashboard-upload-card">
-          <h3>Upload File</h3>
+          <h3>Source Upload</h3>
           <p>Select the input file for processing.</p>
 
           <label className="dashboard-upload-button">

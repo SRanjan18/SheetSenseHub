@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import UseCaseModal from '../components/UseCaseModal';
-import { useUseCase } from '../context/UsecaseContext';
+import BusinessModal from '../components/businessModal';
+import { useBusiness } from '../context/businessContext';
 import Header from './header/Header';
 import Footer from './footer/Footer';
 import './AppLayout.css';
@@ -19,20 +19,20 @@ const USE_CASES = [
 ];
 
 export default function AppLayout({ children }) {
-  const { selectedUseCase, setSelectedUseCase } = useUseCase();
-  const [showUseCaseModal, setShowUseCaseModal] = useState(!selectedUseCase);
+  const { selectedBusiness, setSelectedBusiness } = useBusiness();
+  const [showBusinessModal, setShowBusinessModal] = useState(!selectedBusiness);
 
-  const handleUseCaseSelect = (useCase) => {
-  setSelectedUseCase(useCase);
-  setShowUseCaseModal(false);
-};
+  const handleBusinessSelect = (business) => {
+    setSelectedBusiness(business);
+    setShowBusinessModal(false);
+  };
 
   return (
     <div className="shell">
       <Header
-        selectedUseCase={selectedUseCase}
-        useCases={USE_CASES}
-        onUseCaseSelect={handleUseCaseSelect}
+        selectedBusiness={selectedBusiness}
+        businesses={USE_CASES}
+        onBusinessSelect={handleBusinessSelect}
       />
 
      <main className="shell-main">
@@ -40,13 +40,13 @@ export default function AppLayout({ children }) {
       </main>
       <Footer />
 
-      <UseCaseModal
-        isOpen={showUseCaseModal}
-        useCases={USE_CASES}
-        selectedUseCase={selectedUseCase}
-        onSelect={handleUseCaseSelect}
-        // Prevent closing the modal when no use case is selected yet.
-        onClose={() => selectedUseCase && setShowUseCaseModal(false)}
+      <BusinessModal
+        isOpen={showBusinessModal}
+        businesses={USE_CASES}
+        selectedBusiness={selectedBusiness}
+        onSelect={handleBusinessSelect}
+        // Prevent closing the modal when no business is selected yet.
+        onClose={() => selectedBusiness && setShowBusinessModal(false)}
       />
     </div>
   );

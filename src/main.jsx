@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
-import { UseCaseProvider } from './context/UsecaseContext';
+import { BusinessProvider } from './context/businessContext';
 import { store } from './store/store';
 import './index.css';
 
@@ -13,9 +13,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <Provider store={store}>
       <BrowserRouter>
         <AuthProvider>
-          <UseCaseProvider>
+          <BusinessProvider>
             <App />
-          </UseCaseProvider>
+          </BusinessProvider>
         </AuthProvider>
       </BrowserRouter>
     </Provider>

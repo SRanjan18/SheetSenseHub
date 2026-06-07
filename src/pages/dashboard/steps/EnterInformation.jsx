@@ -2,11 +2,11 @@ import LoadingPage from '../../../reusable/LoadingPage/LoadingPage';
 import ProductDetailsBox from './ProductDetailsBox';
 
 export default function EnterInformation({
-  useCaseFamily,
-  groupName,
-  setGroupName,
-  opportunityId,
-  setOpportunityId,
+  businessFamily,
+  organization,
+  setOrganization,
+  requestId,
+  setRequestId,
   category,
   setCategory,
   profile,
@@ -19,7 +19,7 @@ export default function EnterInformation({
   setVoAddError,
   setVoAddSuccess,
   clearFieldError,
-  validateOpportunityId,
+  validateRequestId,
   handleAddVoProduct,
   isVoAddEnabled,
   isOcEnabled,
@@ -28,24 +28,24 @@ export default function EnterInformation({
   showOverlay = false,
   loadingMessage = 'Please wait, your file is being processed',
 }) {
-  if (useCaseFamily === 'search-group') {
+  if (businessFamily === 'search-group') {
     return null;
   }
 
-  if (useCaseFamily === 'sb') {
+  if (businessFamily === 'sb') {
     return (
       <>
         <div className="dashboard-form-shell dashboard-form-shell--vo-layout">
           <div className="dashboard-form-left">
             <div className="dashboard-inner-card dashboard-inner-card--single">
               <label className="dashboard-label">
-                Group Name <span>*</span>
+              Organization <span>*</span>
               </label>
               <input
                 className="dashboard-input"
                 type="text"
-                value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
               />
 
               <label className="dashboard-checkbox-row">
@@ -70,20 +70,20 @@ export default function EnterInformation({
     );
   }
 
-  if (useCaseFamily === 'simple-group') {
+  if (businessFamily === 'simple-group') {
     return (
       <>
         <div className="dashboard-form-shell dashboard-form-shell--vo-layout">
           <div className="dashboard-form-left">
             <div className="dashboard-inner-card dashboard-inner-card--single">
               <label className="dashboard-label">
-                Group Name <span>*</span>
+                Organization <span>*</span>
               </label>
               <input
                 className="dashboard-input"
                 type="text"
-                value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
               />
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function EnterInformation({
     );
   }
 
-  if (useCaseFamily !== 'vo-group') {
+  if (businessFamily !== 'vo-group') {
     return null;
   }
 
@@ -111,15 +111,15 @@ export default function EnterInformation({
            <div className="dashboard-vo-top-fields">
   <div className="dashboard-vo-field-block">
     <label className="dashboard-field-label">
-      Group Name <span>*</span>
+      Organization <span>*</span>
     </label>
     <input
       className="dashboard-input dashboard-input--compact"
       type="text"
       placeholder="Search"
-      value={groupName}
+      value={organization}
       onChange={(e) => {
-        setGroupName(e.target.value);
+        setOrganization(e.target.value);
         setVoAddError('');
       }}
     />
@@ -127,11 +127,11 @@ export default function EnterInformation({
 
   <div className="dashboard-vo-field-block">
     <label className="dashboard-field-label">
-      Opportunity ID{' '}
+      Request ID{' '}
       <span
         className="dashboard-help-dot"
-        data-tooltip="Format: Opp-123456789"
-        aria-label="Opportunity ID format: Opp-123456789"
+        data-tooltip="Format: REQ-2026-1001"
+        aria-label="Request ID format: REQ-2026-1001"
         tabIndex={0}
       >
         ?
@@ -139,28 +139,28 @@ export default function EnterInformation({
     </label>
     <input
       className={`dashboard-input dashboard-input--compact ${
-        fieldErrors.opportunityId ? 'dashboard-input--error' : ''
+        fieldErrors.requestId ? 'dashboard-input--error' : ''
       }`}
       type="text"
-      value={opportunityId}
+      value={requestId}
       onChange={(e) => {
         const value = e.target.value;
-        setOpportunityId(value);
+        setRequestId(value);
         setVoAddError('');
         setVoAddSuccess('');
 
         if (!value.trim()) {
-          clearFieldError('opportunityId');
+          clearFieldError('requestId');
           return;
         }
 
-        validateOpportunityId(value);
+        validateRequestId(value);
       }}
-      onBlur={() => validateOpportunityId(opportunityId)}
+      onBlur={() => validateRequestId(requestId)}
     />
-    {opportunityId.trim().length > 0 && fieldErrors.opportunityId && (
+    {requestId.trim().length > 0 && fieldErrors.requestId && (
       <p className="dashboard-vo-msg dashboard-vo-msg--error">
-        {fieldErrors.opportunityId}
+        {fieldErrors.requestId}
       </p>
     )}
   </div>
@@ -244,8 +244,8 @@ export default function EnterInformation({
                 type="button"
                 onClick={handleAddVoProduct}
                 disabled={!isVoAddEnabled}
-                aria-label="Add product detail"
-                title="Add product detail"
+                aria-label="Add Business Processes"
+                title="Add Business Processes"
               >
                 +
               </button>

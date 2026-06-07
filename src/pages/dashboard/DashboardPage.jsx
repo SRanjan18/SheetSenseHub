@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUseCase } from '../../context/UsecaseContext';
+import { useBusiness } from '../../context/businessContext';
 import './DashboardPage.css';
 import { styled } from '@mui/material/styles';
 import OutputTable from './steps/OutputTable';
@@ -9,7 +9,7 @@ import UploadFile from './steps/UploadFile';
 import {
   getCardAction,
   getCardsForFamily,
-  getUseCaseFamily,
+  getBusinessFamily,
 } from './dashboardConfig';
 import {
   Box,
@@ -22,8 +22,9 @@ import {
   Stepper,
 } from '@mui/material';
 
-const STEP_TITLES = ['Enter Information', 'Upload File', 'Processing', 'Output'];
-const INGESTION_API_URL = '';
+const STEP_TITLES = ['Request Setup', 'Source Upload', 'Data Processing', 'Results'];
+const INGESTION_API_URL = 'https://sheetsensehubbackend-1.onrender.com/ranjanLabs/upload';
+const API_BASE_URL = 'https://sheetsensehubbackend-1.onrender.com';
 
 function formatCategoryLabel(value) {
   const map = {
@@ -91,12 +92,12 @@ const StyledStepper = styled(Stepper)(() => ({
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { selectedUseCase } = useUseCase();
-  const hasUseCase = Boolean(selectedUseCase);
-  const useCaseFamily = getUseCaseFamily(selectedUseCase);
+  const { selectedBusiness } = useBusiness();
+  const hasBusiness = Boolean(selectedBusiness);
+  const businessFamily = getBusinessFamily(selectedBusiness);
 
-  const [groupName, setGroupName] = useState('');
-  const [opportunityId, setOpportunityId] = useState('');
+  const [organization, setOrganization] = useState('');
+  const [requestId, setRequestId] = useState('');
   const [category, setCategory] = useState('');
   const [profile, setProfile] = useState('');
   const [ocChecked, setOcChecked] = useState(false);
@@ -111,19 +112,19 @@ export default function DashboardPage() {
 const [ingestionError, setIngestionError] = useState('');
 const [ingestionResponse, setIngestionResponse] = useState(null);
 
-  const cards = getCardsForFamily(useCaseFamily);
-  const showStepper = useCaseFamily !== 'search-group';
-  const sectionTitle = useCaseFamily === 'search-group' ? '' : 'File Station';
+  const cards = getCardsForFamily(businessFamily);
+  const showStepper = businessFamily !== 'search-group';
+  const sectionTitle = businessFamily === 'search-group' ? '' : 'Data Processing';
 
   const isOcEnabled =
-    useCaseFamily === 'vo-group' &&
+    businessFamily === 'vo-group' &&
     ((category.startsWith('DEN:') && category !== 'DEN:BASIC') ||
       voProducts.some(
         (product) => product.category.startsWith('DEN:') && product.category !== 'DEN:BASIC'
       ));
 
   const isOppIdValid =
-    opportunityId.trim().length === 0 || /^Opp-\d{9}$/.test(opportunityId.trim());
+    requestId.trim().length === 0 || /^REQ-\d{4}-\d{4}$/.test(requestId.trim());
   const usedCategories = useMemo(
     () => new Set(voProducts.map((product) => product.category)),
     [voProducts]
@@ -132,10 +133,10 @@ const [ingestionResponse, setIngestionResponse] = useState(null);
 
   // CHANGED: keep product count aligned with the active use case family
   const productCount = useMemo(() => {
-    if (useCaseFamily === 'vo-group') return String(voProducts.length);
-    if (useCaseFamily === 'sb' || useCaseFamily === 'simple-group') return '1';
+    if (businessFamily === 'vo-group') return String(voProducts.length);
+    if (businessFamily === 'sb' || businessFamily === 'simple-group') return '1';
     return '0';
-  }, [useCaseFamily, voProducts.length]);
+  }, [businessFamily, voProducts.length]);
 
   useEffect(() => {
     if (!isOcEnabled && ocChecked) {
@@ -143,8 +144,8 @@ const [ingestionResponse, setIngestionResponse] = useState(null);
     }
   }, [isOcEnabled, ocChecked]);
   useEffect(() => {
-  setGroupName('');
-  setOpportunityId('');
+  setOrganization('');
+  setRequestId('');
   setCategory('');
   setProfile('');
   setOcChecked(false);
@@ -158,7 +159,7 @@ const [ingestionResponse, setIngestionResponse] = useState(null);
   setIngestionLoading(false);
   setIngestionError('');
   setIngestionResponse(null);
-}, [selectedUseCase]);
+}, [selectedBusiness]);
 
   const clearFieldError = (field) => {
     setFieldErrors((prev) => ({
@@ -167,44 +168,44 @@ const [ingestionResponse, setIngestionResponse] = useState(null);
     }));
   };
 
-const validateOpportunityId = (value) => {
-  const normalizedOpportunityId =
-    typeof value === 'string' ? value.trim() : opportunityId.trim();
+const validateRequestId = (value) => {
+  const normalizedRequestId =
+    typeof value === 'string' ? value.trim() : requestId.trim();
 
-  if (!normalizedOpportunityId) {
-    clearFieldError('opportunityId');
+  if (!normalizedRequestId) {
+    clearFieldError('requestId');
     return true;
   }
 
-  if (!/^Opp-\d{9}$/.test(normalizedOpportunityId)) {
+  if (!/^REQ-\d{4}-\d{4}$/.test(normalizedRequestId)) {
     setFieldErrors((prev) => ({
       ...prev,
-      opportunityId: 'Opportunity ID format: Opp-123456789',
+      requestId: 'Request ID format: REQ-2026-1001',
     }));
     return false;
   }
 
-  clearFieldError('opportunityId');
+  clearFieldError('requestId');
   return true;
 };
 const buildIngestionPayload = () => {
-  const normalizedOpportunityId = opportunityId.trim();
+  const normalizedRequestId = requestId.trim();
 
   const payload = {
-    use_case: selectedUseCase || '',
-    group_name: groupName.trim(),
-    opportunity_id: normalizedOpportunityId,
+    business: selectedBusiness || '',
+    organization: organization.trim(),
+    request_id: normalizedRequestId,
     orthodontic_coverage: Boolean(ocChecked),
     file_name: selectedFile?.name || '',
   };
 
-  if (selectedUseCase === 'BillingHub (BH)') {
+  if (selectedBusiness === 'BillingHub (BH)') {
     payload.is_ltd = Boolean(isLtd);
     return payload;
   }
 
   payload.products =
-    useCaseFamily === 'vo-group'
+    businessFamily === 'vo-group'
       ? voProducts.map((product) => ({
           category: product.category,
           profile: product.profile,
@@ -233,57 +234,56 @@ const submitIngestion = async () => {
     const productsForResponse = Array.isArray(payload.products) ? payload.products : [];
 
     // MOCK FLOW FOR NOW
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    // await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const mockResponse = {
-      success: true,
-      body: productsForResponse.length
-        ? productsForResponse.map((product, index) => ({
-            id: index + 1,
-            category: product.category,
-            profile: product.profile,
-            orthodontic_coverage: payload.orthodontic_coverage ? 'Yes' : 'No',
-            opportunity_id: payload.opportunity_id || 'N/A',
-            group_name: payload.group_name || 'N/A',
-            use_case: payload.use_case || 'N/A',
-            file_name: payload.file_name || 'N/A',
-            is_ltd:
-              payload.use_case === 'BillingHub (BH)'
-                ? Boolean(payload.is_ltd)
-                  ? 'Yes'
-                  : 'No'
-                : 'N/A',
-          }))
-        : [
-            {
-              id: 1,
-              category: 'N/A',
-              profile: 'N/A',
-              orthodontic_coverage: payload.orthodontic_coverage ? 'Yes' : 'No',
-              opportunity_id: payload.opportunity_id || 'N/A',
-              group_name: payload.group_name || 'N/A',
-              use_case: payload.use_case || 'N/A',
-              file_name: payload.file_name || 'N/A',
-              is_ltd:
-                payload.use_case === 'BillingHub (BH)'
-                  ? Boolean(payload.is_ltd)
-                    ? 'Yes'
-                    : 'No'
-                  : 'N/A',
-            },
-          ],
-    };
+    // const mockResponse = {
+    //   success: true,
+    //   body: productsForResponse.length
+    //     ? productsForResponse.map((product, index) => ({
+    //         id: index + 1,
+    //         category: product.category,
+    //         profile: product.profile,
+    //         orthodontic_coverage: payload.orthodontic_coverage ? 'Yes' : 'No',
+    //         request_id: payload.request_id || 'N/A',
+    //         organization: payload.organization || 'N/A',
+    //         business: payload.business || 'N/A',
+    //         file_name: payload.file_name || 'N/A',
+    //         is_ltd:
+    //           payload.business === 'BillingHub (BH)'
+    //             ? Boolean(payload.is_ltd)
+    //               ? 'Yes'
+    //               : 'No'
+    //             : 'N/A',
+    //       }))
+    //     : [
+    //         {
+    //           id: 1,
+    //           category: 'N/A',
+    //           profile: 'N/A',
+    //           orthodontic_coverage: payload.orthodontic_coverage ? 'Yes' : 'No',
+    //           request_id: payload.request_id || 'N/A',
+    //           organization: payload.organization || 'N/A',
+    //           business: payload.business || 'N/A',
+    //           file_name: payload.file_name || 'N/A',
+    //           is_ltd:
+    //             payload.business === 'BillingHub (BH)'
+    //               ? Boolean(payload.is_ltd)
+    //                 ? 'Yes'
+    //                 : 'No'
+    //               : 'N/A',
+    //         },
+    //       ],
+    // };
 
-    setIngestionResponse(mockResponse);
-    return mockResponse;
+    // setIngestionResponse(mockResponse);
+    // return mockResponse;
 
-    /*
+    
     // FUTURE REAL API FLOW - UNCOMMENT LATER
     const formData = new FormData();
     formData.append('file', selectedFile);
     formData.append('payload', JSON.stringify(payload));
-
-    const response = await fetch('ADD_YOUR_API_URL_HERE', {
+     const response = await fetch(`${API_BASE_URL}/api/ranjanLabs/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -301,7 +301,7 @@ const submitIngestion = async () => {
 
     setIngestionResponse(safeResult);
     return safeResult;
-    */
+    
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Something went wrong during ingestion.';
@@ -328,8 +328,8 @@ const submitIngestion = async () => {
   };
 
 const handleCancel = () => {
-  setGroupName('');
-  setOpportunityId('');
+  setOrganization('');
+  setRequestId('');
   setCategory('');
   setProfile('');
   setOcChecked(false);
@@ -354,7 +354,7 @@ const handleCancel = () => {
 
   const validateVoFields = () => {
     const nextErrors = {};
-    const normalizedOpportunityId = opportunityId.trim();
+    const normalizedRequestId = requestId.trim();
 
     if (!category) {
       nextErrors.category = 'Category is required.';
@@ -364,25 +364,25 @@ const handleCancel = () => {
       nextErrors.profile = 'Profile is required.';
     }
 
-    if (normalizedOpportunityId && !/^Opp-\d{9}$/.test(normalizedOpportunityId)) {
-      nextErrors.opportunityId = 'Opportunity ID format: Opp-123456789';
+    if (normalizedRequestId && !/^REQ-\d{4}-\d{4}$/.test(normalizedRequestId)) {
+      nextErrors.requestId = 'Request ID format: REQ-2026-1001';
     }
 
     setFieldErrors(nextErrors);
 
     return {
       isValid: Object.keys(nextErrors).length === 0,
-      normalizedOpportunityId,
+      normalizedRequestId,
     };
   };
 
   const handleAddVoProduct = () => {
-    if (useCaseFamily !== 'vo-group') return;
+    if (businessFamily !== 'vo-group') return;
 
-    const { isValid, normalizedOpportunityId } = validateVoFields();
+    const { isValid, normalizedRequestId } = validateVoFields();
 
     if (!isValid) {
-      setVoAddError('Please fix the highlighted fields before adding product details.');
+      setVoAddError('Please fix the highlighted fields before adding Business Processes.');
       return;
     }
 
@@ -390,7 +390,7 @@ const handleCancel = () => {
 
     const isDuplicate = voProducts.some(
       (product) =>
-        product.opportunityId === normalizedOpportunityId &&
+        product.requestId === normalizedRequestId &&
         product.categoryKey === normalizedCategory &&
         product.profile === profile
     );
@@ -403,8 +403,8 @@ const handleCancel = () => {
     setVoProducts((prev) => [
       ...prev,
       {
-        id: `${normalizedOpportunityId || 'no-opp'}-${normalizedCategory}-${profile}-${Date.now()}`,
-        opportunityId: normalizedOpportunityId,
+        id: `${normalizedRequestId || 'no-req'}-${normalizedCategory}-${profile}-${Date.now()}`,
+        requestId: normalizedRequestId,
         category,
         categoryKey: normalizedCategory,
         profile,
@@ -414,12 +414,12 @@ const handleCancel = () => {
 
     setVoAddError('');
 
-    setOpportunityId('');
+    setRequestId('');
     setCategory('');
     setProfile('');
     setFieldErrors((prev) => ({
       ...prev,
-      opportunityId: '',
+      requestId: '',
       category: '',
       profile: '',
     }));
@@ -432,16 +432,16 @@ const handleCancel = () => {
   };
 
   const isStepOneValid = () => {
-    if (useCaseFamily === 'sb') {
-      return groupName.trim().length > 0;
+    if (businessFamily === 'sb') {
+      return organization.trim().length > 0;
     }
 
-    if (useCaseFamily === 'vo-group') {
-      return groupName.trim().length > 0 && voProducts.length > 0;
+    if (businessFamily === 'vo-group') {
+      return organization.trim().length > 0 && voProducts.length > 0;
     }
 
-    if (useCaseFamily === 'simple-group') {
-      return groupName.trim().length > 0;
+    if (businessFamily === 'simple-group') {
+      return organization.trim().length > 0;
     }
 
     return false;
@@ -490,18 +490,18 @@ const isNextDisabled =
 
   const renderStepContent = () => {
         // CHANGED: for VAQ/SHAQ show only the hero cards, not the lower empty search area
-    if (useCaseFamily === 'search-group') {
+    if (businessFamily === 'search-group') {
       return null;
     }
 
     if (currentStep === 0) {
       return (
         <EnterInformation
-          useCaseFamily={useCaseFamily}
-          groupName={groupName}
-          setGroupName={setGroupName}
-          opportunityId={opportunityId}
-          setOpportunityId={setOpportunityId}
+          businessFamily={businessFamily}
+          organization={organization}
+          setOrganization={setOrganization}
+          requestId={requestId}
+          setRequestId={setRequestId}
           category={category}
           setCategory={setCategory}
           profile={profile}
@@ -514,15 +514,15 @@ const isNextDisabled =
           setVoAddError={setVoAddError}
           setVoAddSuccess={setVoAddSuccess}
           clearFieldError={clearFieldError}
-          validateOpportunityId={validateOpportunityId}
+          validateRequestId={validateRequestId}
           handleAddVoProduct={handleAddVoProduct}
           isVoAddEnabled={isVoAddEnabled}
           isOcEnabled={isOcEnabled}
           usedCategories={usedCategories}
           productBoxProps={{
             titleCount: productCount,
-            useCaseFamily,
-            selectedUseCase,
+            businessFamily,
+            selectedBusiness,
             products: voProducts,
             formatCategoryLabel,
             formatProfileLabel,
@@ -556,11 +556,11 @@ const isNextDisabled =
       ) : null}
 
       <EnterInformation
-        useCaseFamily={useCaseFamily}
-        groupName={groupName}
-        setGroupName={setGroupName}
-        opportunityId={opportunityId}
-        setOpportunityId={setOpportunityId}
+        businessFamily={businessFamily}
+        organization={organization}
+        setOrganization={setOrganization}
+        requestId={requestId}
+        setRequestId={setRequestId}
         category={category}
         setCategory={setCategory}
         profile={profile}
@@ -573,7 +573,7 @@ const isNextDisabled =
         setVoAddError={setVoAddError}
         setVoAddSuccess={setVoAddSuccess}
         clearFieldError={clearFieldError}
-        validateOpportunityId={validateOpportunityId}
+        validateRequestId={validateRequestId}
         handleAddVoProduct={handleAddVoProduct}
         isVoAddEnabled={isVoAddEnabled}
         isOcEnabled={isOcEnabled}
@@ -582,8 +582,8 @@ const isNextDisabled =
         loadingMessage="Please wait, your file is being processed"
         productBoxProps={{
           titleCount: productCount,
-          useCaseFamily,
-          selectedUseCase,
+          businessFamily,
+          selectedBusiness,
           products: voProducts,
           formatCategoryLabel,
           formatProfileLabel,
@@ -596,18 +596,18 @@ const isNextDisabled =
 
  return (
   <OutputTable
-    groupName={groupName}
-    opportunityId={opportunityId}
+    organization={organization}
+    requestId={requestId}
     productsCount={ingestionResponse?.body?.length || voProducts.length}
-    selectedUseCase={selectedUseCase}
+    selectedBusiness={selectedBusiness}
     selectedFile={selectedFile}
     columns={[
       { key: 'category', header: 'Category' },
       { key: 'profile', header: 'Profile' },
       { key: 'orthodontic_coverage', header: 'OC' },
-      { key: 'opportunity_id', header: 'Opportunity ID' },
-      { key: 'group_name', header: 'Group Name' },
-      { key: 'use_case', header: 'Use Case' },
+      { key: 'request_id', header: 'Request ID' },
+      { key: 'organization', header: 'Organization' },
+      { key: 'business', header: 'Business' },
       { key: 'file_name', header: 'File Name' },
     ]}
     data={
@@ -617,9 +617,9 @@ const isNextDisabled =
             category: formatCategoryLabel(product.category),
             profile: formatProfileLabel(product.profile),
             orthodontic_coverage: ocChecked ? 'Yes' : 'No',
-            opportunity_id: product.opportunityId || opportunityId || 'N/A',
-            group_name: groupName || 'N/A',
-            use_case: selectedUseCase || 'N/A',
+            request_id: product.requestId || requestId || 'N/A',
+            organization: organization || 'N/A',
+            business: selectedBusiness || 'N/A',
             file_name: selectedFile?.name || 'N/A',
           }))
     }
@@ -630,13 +630,13 @@ const isNextDisabled =
   return (
   <div
   className={`dashboard-page ${
-    useCaseFamily === 'sb' || useCaseFamily === 'simple-group'
+    businessFamily === 'sb' || businessFamily === 'simple-group'
       ? 'dashboard-page--sb'
       : ''
-  } ${!hasUseCase ? 'dashboard-page--preselect' : ''}`}
+  } ${!hasBusiness ? 'dashboard-page--preselect' : ''}`}
 >
       <section className="dashboard-hero">
-        {hasUseCase && (
+        {hasBusiness && (
           <Box
             className={`dashboard-card-row ${
               cards.length === 3 ? 'dashboard-card-row--three' : ''
@@ -670,7 +670,7 @@ const isNextDisabled =
       </section>
 
           {/* CHANGED: hide the lower dashboard content completely for search use cases */}
-      {hasUseCase && useCaseFamily !== 'search-group' && (
+      {hasBusiness && businessFamily !== 'search-group' && (
         <section className="dashboard-content">
           <h2>{sectionTitle}</h2>
 

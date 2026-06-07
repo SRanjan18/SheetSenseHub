@@ -11,7 +11,7 @@ export default function Footer() {
 
       <Box className="shell-footer__links">
         <Link component={RouterLink} to="/dashboard" underline="none" className="shell-footer__link">
-          File Station
+         Processing
         </Link>
         <span className="shell-footer__separator">|</span>
 

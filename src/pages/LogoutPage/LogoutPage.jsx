@@ -24,7 +24,7 @@ export default function LogoutPage() {
         </Typography>
 
         <Typography className="logout-page__message">
-          You have been successfully signed out.
+          You have successfully signed out.
         </Typography>
 
         <Typography className="logout-page__subtext">

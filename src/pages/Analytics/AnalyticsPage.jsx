@@ -47,7 +47,22 @@ const mockStatusData = [
   { name: 'Critical Check', value: 4, color: '#E40046' },
   { name: 'Processing Failure', value: 2, color: '#020202' },
 ];
+const businessOptions = [
+  { label: 'AccountSphere (AS)', value: 'AccountSphere (AS)' },
+  { label: 'BillingHub (BH)', value: 'BillingHub (BH)' },
+  { label: 'UnderwritePro (UP)', value: 'UnderwritePro (UP)' },
+];
 
+const getStatusColor = (status) => {
+  const s = String(status || '').toUpperCase();
+
+  if (s === 'COMPLETED') return '#007000';
+  if (s === 'FAILED') return '#E40046';
+  if (s === 'PROCESSING') return '#F5B700';
+  if (s === 'INGESTED') return '#3a31b0';
+
+  return '#616161';
+};
 const mockReasonCodeData = [
   { reasonCode: 'RC-101', count: 10 },
   { reasonCode: 'RC-404', count: 7 },
@@ -124,7 +139,7 @@ function StatusChart({ data }) {
   );
 }
 
-function ReasonCodeChart({ data }) {
+function ProductPopularityChart({ data }) {
   if (!data || !data.length) {
     return (
       <div className="analytics-chart-placeholder">
@@ -148,7 +163,7 @@ function ReasonCodeChart({ data }) {
           <YAxis
             type="category"
             dataKey="reasonCode"
-            label={{ value: 'Reason Code', angle: -90, position: 'insideLeft' }}
+            // label={{ value: 'Reason Code', angle: -90, position: 'insideLeft' }}
             width={100}
           />
           <Tooltip />
@@ -192,15 +207,16 @@ export default function AnalyticsPage() {
   const yesterday = dayjs().subtract(1, 'day');
   const today = dayjs();
 
-  const [selectedProducts, setSelectedProducts] = useState([{ label: 'SB', value: 'SB' }]);
+ const [selectedBusiness, setSelectedBusiness] = useState(businessOptions[0]);
+const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(yesterday);
   const [endDate, setEndDate] = useState(today);
   const [errors, setErrors] = useState({
-    productType: '',
-    startDate: '',
-    endDate: '',
-    range: '',
-  });
+  business: '',
+  startDate: '',
+  endDate: '',
+  range: '',
+});
 
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -212,15 +228,14 @@ export default function AnalyticsPage() {
 
   const validateForm = () => {
     const nextErrors = {
-      productType: '',
-      startDate: '',
-      endDate: '',
-      range: '',
-    };
-
-    if (!selectedProducts.length) {
-      nextErrors.productType = 'Product Type is required';
-    }
+  business: '',
+  startDate: '',
+  endDate: '',
+  range: '',
+};
+if (!selectedBusiness) {
+  nextErrors.business = 'Business is required';
+}
 
     if (!startDate) {
       nextErrors.startDate = 'Start Date is required';
@@ -238,17 +253,99 @@ export default function AnalyticsPage() {
     return !Object.values(nextErrors).some(Boolean);
   };
 
-  const handleSearch = () => {
-    if (!validateForm()) return;
+const API_BASE_URL = 'https://sheetsensehubbackend-1.onrender.com';
 
-    // placeholder for future API binding
-    // mimic repo behavior: fetch all charts together using same payload
-    setStatusData(mockStatusData);
-    setReasonCodeData(mockReasonCodeData);
-    setDailyTxnData(mockDailyTxnData);
-    setWeeklyTxnData(mockWeeklyTxnData);
-    setMonthlyTxnData(mockMonthlyTxnData);
+const callAnalyticsApi = async (endpoint, payload) => {
+  const response = await fetch(`${API_BASE_URL}/api/analytics/${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`${endpoint} failed`);
+  }
+
+  return response.json();
+};
+const handleSearch = async () => {
+  if (!validateForm()) return;
+
+  setLoading(true);
+
+  const payload = {
+    business: selectedBusiness.value,
+    startDate: startDate.format('YYYY-MM-DD'),
+    endDate: endDate.format('YYYY-MM-DD'),
   };
+
+  try {
+    const results = await Promise.allSettled([
+      callAnalyticsApi('status-summary', payload),
+      callAnalyticsApi('product-popularity', payload),
+      callAnalyticsApi('daily-transactions', payload),
+      callAnalyticsApi('weekly-transactions', payload),
+      callAnalyticsApi('monthly-transactions', payload),
+    ]);
+
+    const statusSummary =
+      results[0].status === 'fulfilled' ? results[0].value : [];
+
+    const productPopularity =
+      results[1].status === 'fulfilled' ? results[1].value : [];
+
+    const dailyTransactions =
+      results[2].status === 'fulfilled' ? results[2].value : [];
+
+    const weeklyTransactions =
+      results[3].status === 'fulfilled' ? results[3].value : [];
+
+    const monthlyTransactions =
+      results[4].status === 'fulfilled' ? results[4].value : [];
+
+    setStatusData(
+      statusSummary.map((item) => ({
+        name: item.name,
+        value: item.value,
+        color: getStatusColor(item.name),
+      }))
+    );
+
+    setReasonCodeData(
+      productPopularity.map((item) => ({
+        reasonCode: item.name,
+        count: item.value,
+      }))
+    );
+
+    setDailyTxnData(
+      dailyTransactions.map((item) => ({
+        date: item.name,
+        count: item.value,
+      }))
+    );
+
+    setWeeklyTxnData(
+      weeklyTransactions.map((item) => ({
+        date: item.name,
+        count: item.value,
+      }))
+    );
+
+    setMonthlyTxnData(
+      monthlyTransactions.map((item) => ({
+        date: item.name,
+        count: item.value,
+      }))
+    );
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     handleSearch();
@@ -272,31 +369,19 @@ export default function AnalyticsPage() {
         <section className="analytics-filter-bar">
           <div className="analytics-field analytics-field--wide analytics-field--mui">
             <Autocomplete
-              multiple
-              options={productOptions}
-              value={selectedProducts}
-              onChange={(_, value) => setSelectedProducts(value)}
-              getOptionLabel={(option) => option.label}
-              renderTags={(value, getTagProps) =>
-                value.map((option, index) => (
-                  <Chip
-                    variant="filled"
-                    label={option.label}
-                    size="small"
-                    {...getTagProps({ index })}
-                    key={option.value}
-                  />
-                ))
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Product Type *"
-                  error={!!errors.productType}
-                  helperText={errors.productType}
-                />
-              )}
-            />
+  options={businessOptions}
+  value={selectedBusiness}
+  onChange={(_, value) => setSelectedBusiness(value)}
+  getOptionLabel={(option) => option.label}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Business *"
+      error={!!errors.business}
+      helperText={errors.business}
+    />
+  )}
+/>
           </div>
 
           <div className="analytics-field analytics-field--mui">
@@ -333,13 +418,14 @@ export default function AnalyticsPage() {
 
           <div className="analytics-actions-top analytics-actions-top--mui">
             <Button
-              variant="contained"
-              startIcon={<SearchIcon />}
-              onClick={handleSearch}
-              className="analytics-search-btn-mui"
-            >
-              Search
-            </Button>
+  variant="contained"
+  startIcon={<SearchIcon />}
+  onClick={handleSearch}
+  className="analytics-search-btn-mui"
+  disabled={loading}
+>
+  {loading ? 'Searching...' : 'Search'}
+</Button>
           </div>
         </section>
 
@@ -347,8 +433,8 @@ export default function AnalyticsPage() {
           <StatusChart data={statusData} />
         </EmptyPanel>
 
-        <EmptyPanel title="Reason Code Count Chart" height="700px">
-          <ReasonCodeChart data={reasonCodeData} />
+          <EmptyPanel title="Product Popularity Chart" height="700px">
+          <ProductPopularityChart data={reasonCodeData} />
         </EmptyPanel>
 
         <EmptyPanel title={transactionTitle} height="380px">

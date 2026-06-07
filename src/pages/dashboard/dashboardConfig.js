@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-export const USE_CASE_COOKIE_KEY = 'selectedUseCase';
+export const USE_CASE_COOKIE_KEY = 'selectedBusiness';
 
 export const USE_CASE_FAMILY_MAP = {
   'BillingHub (BH)': 'sb',
@@ -16,10 +16,10 @@ export const USE_CASE_FAMILY_MAP = {
 const DEFAULT_CARDS = [
   {
     key: 'file-station',
-    title: 'File Station',
+    title: 'Data Processing',
     image: '📁',
-    description: 'Click on below button to go to upload zone',
-    buttonText: 'Upload Zone',
+    description: 'Click on below button to go to Data Ingestion',
+    buttonText: 'Data Ingestion',
   },
   {
     key: 'report',
@@ -30,10 +30,10 @@ const DEFAULT_CARDS = [
   },
   {
     key: 'analytics',
-    title: 'Analytics',
+    title: 'Insights',
     image: '📊',
-    description: 'Click on below button to view analytics for processed cases.',
-    buttonText: 'View Analytics',
+    description: 'Click on below button to view insights for processed cases.',
+    buttonText: 'View Insights',
   },
 ];
 
@@ -70,28 +70,28 @@ const CARD_ACTIONS = {
   search: { type: 'alert', value: 'Search page will be added next.' },
 };
 
-export function getUseCaseFamily(selectedUseCase) {
-  return selectedUseCase ? USE_CASE_FAMILY_MAP[selectedUseCase] ?? null : null;
+export function getBusinessFamily(selectedBusiness) {
+  return selectedBusiness ? USE_CASE_FAMILY_MAP[selectedBusiness] ?? null : null;
 }
 
-export function getCardsForFamily(useCaseFamily) {
-  if (!useCaseFamily) return [];
-  return CARD_SETS[useCaseFamily] ?? DEFAULT_CARDS;
+export function getCardsForFamily(businessFamily) {
+  if (!businessFamily) return [];
+  return CARD_SETS[businessFamily] ?? DEFAULT_CARDS;
 }
 
 export function getCardAction(cardKey) {
   return CARD_ACTIONS[cardKey] ?? { type: 'reset-step' };
 }
 
-export function saveSelectedUseCaseToCookie(selectedUseCase) {
-  if (!selectedUseCase) {
+export function saveSelectedBusinessToCookie(selectedBusiness) {
+  if (!selectedBusiness) {
     Cookies.remove(USE_CASE_COOKIE_KEY);
     return;
   }
 
-  Cookies.set(USE_CASE_COOKIE_KEY, selectedUseCase, { expires: 30 });
+  Cookies.set(USE_CASE_COOKIE_KEY, selectedBusiness, { expires: 30 });
 }
 
-export function getSelectedUseCaseFromCookie() {
+export function getSelectedBusinessFromCookie() {
   return Cookies.get(USE_CASE_COOKIE_KEY) ?? '';
 }

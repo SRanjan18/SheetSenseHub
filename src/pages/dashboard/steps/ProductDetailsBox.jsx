@@ -1,38 +1,38 @@
 export default function ProductDetailsBox({
   titleCount,
-  useCaseFamily,
-  selectedUseCase,
+  businessFamily,
+  selectedBusiness,
   products,
-  formatCensusLabel,
-  formatTierLabel,
+  formatCategoryLabel,
+  formatProfileLabel,
   onDeleteProduct,
 }) {
   return (
     <div className="dashboard-form-right">
       <div className="dashboard-product-box">
         <div className="dashboard-product-box__title">
-          Product Details &nbsp;: &nbsp;{titleCount}
+          Business Processes &nbsp;: &nbsp;{titleCount}
         </div>
 
         <div className="dashboard-product-box__panel">
-          {useCaseFamily === 'vo-group' && products.length > 0 ? (
+          {businessFamily === 'vo-group' && products.length > 0 ? (
             <div className="dashboard-product-list">
               {products.map((product) => (
                 <div key={product.id} className="dashboard-product-row">
                   <div className="dashboard-product-chip">
-                    {formatCensusLabel(product.census)}
+                    {formatCategoryLabel(product.category)}
                   </div>
 
                   <div className="dashboard-tier-chip">
-                    {formatTierLabel(product.tier)}
+                    {formatProfileLabel(product.profile)}
                   </div>
 
                   <button
                     type="button"
                     className="dashboard-delete-row-btn"
                     onClick={() => onDeleteProduct(product.id)}
-                    aria-label={`Delete ${formatCensusLabel(product.census)} ${formatTierLabel(
-                      product.tier
+                    aria-label={`Delete ${formatCategoryLabel(product.category)} ${formatProfileLabel(
+                      product.profile
                     )}`}
                     title="Delete row"
                   >
@@ -43,7 +43,7 @@ export default function ProductDetailsBox({
             </div>
           ) : (
             <div className="dashboard-product-box__empty">
-              {selectedUseCase || 'No use case selected'}
+              {selectedBusiness || 'No business selected'}
             </div>
           )}
         </div>

@@ -16,8 +16,6 @@ export default function EnterInformation({
   isLtd,
   setIsLtd,
   fieldErrors,
-  setVoAddError,
-  setVoAddSuccess,
   clearFieldError,
   validateRequestId,
   handleAddVoProduct,
@@ -120,7 +118,6 @@ export default function EnterInformation({
       value={organization}
       onChange={(e) => {
         setOrganization(e.target.value);
-        setVoAddError('');
       }}
     />
   </div>
@@ -146,8 +143,6 @@ export default function EnterInformation({
       onChange={(e) => {
         const value = e.target.value;
         setRequestId(value);
-        setVoAddError('');
-        setVoAddSuccess('');
 
         if (!value.trim()) {
           clearFieldError('requestId');
@@ -179,8 +174,6 @@ export default function EnterInformation({
                   onChange={(e) => {
                     setCategory(e.target.value);
                     clearFieldError('category');
-                    setVoAddError('');
-                    setVoAddSuccess('');
                   }}
                 >
                   <option value="">Select</option>
@@ -225,8 +218,6 @@ export default function EnterInformation({
                   onChange={(e) => {
                     setProfile(e.target.value);
                     clearFieldError('profile');
-                    setVoAddError('');
-                    setVoAddSuccess('');
                   }}
                 >
                   <option value="">Select</option>

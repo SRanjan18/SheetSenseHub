@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBusiness } from '../../context/businessContext';
+import config from '../../config/config';
 import './DashboardPage.css';
 import { styled } from '@mui/material/styles';
 import OutputTable from './steps/OutputTable';
@@ -23,8 +24,6 @@ import {
 } from '@mui/material';
 
 const STEP_TITLES = ['Request Setup', 'Source Upload', 'Data Processing', 'Results'];
-const INGESTION_API_URL = 'https://sheetsensehubbackend-1.onrender.com/ranjanLabs/upload';
-const API_BASE_URL = 'https://sheetsensehubbackend-1.onrender.com';
 
 function formatCategoryLabel(value) {
   const map = {
@@ -105,8 +104,6 @@ export default function DashboardPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [voProducts, setVoProducts] = useState([]);
-  const [voAddError, setVoAddError] = useState('');
-  const [voAddSuccess, setVoAddSuccess] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [ingestionLoading, setIngestionLoading] = useState(false);
 const [ingestionError, setIngestionError] = useState('');
@@ -153,8 +150,6 @@ const [ingestionResponse, setIngestionResponse] = useState(null);
   setSelectedFile(null);
   setCurrentStep(0);
   setVoProducts([]);
-  setVoAddError('');
-  setVoAddSuccess('');
   setFieldErrors({});
   setIngestionLoading(false);
   setIngestionError('');
@@ -231,8 +226,6 @@ const submitIngestion = async () => {
   setIngestionResponse(null);
 
   try {
-    const productsForResponse = Array.isArray(payload.products) ? payload.products : [];
-
     // MOCK FLOW FOR NOW
     // await new Promise((resolve) => setTimeout(resolve, 1500));
 
@@ -283,7 +276,7 @@ const submitIngestion = async () => {
     const formData = new FormData();
     formData.append('file', selectedFile);
     formData.append('payload', JSON.stringify(payload));
-     const response = await fetch(`${API_BASE_URL}/api/ranjanLabs/upload`, {
+     const response = await fetch(`${config.apiBaseUrl}/api/ranjanLabs/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -337,20 +330,11 @@ const handleCancel = () => {
   setSelectedFile(null);
   setCurrentStep(0);
   setVoProducts([]);
-  setVoAddError('');
-  setVoAddSuccess('');
   setFieldErrors({});
   setIngestionLoading(false);
   setIngestionError('');
   setIngestionResponse(null);
 };
-
-  const handleCategoryChange = (event) => {
-    setCategory(event.target.value);
-    clearFieldError('category');
-    setVoAddError('');
-    setVoAddSuccess('');
-  };
 
   const validateVoFields = () => {
     const nextErrors = {};
@@ -382,7 +366,6 @@ const handleCancel = () => {
     const { isValid, normalizedRequestId } = validateVoFields();
 
     if (!isValid) {
-      setVoAddError('Please fix the highlighted fields before adding Business Processes.');
       return;
     }
 
@@ -396,7 +379,6 @@ const handleCancel = () => {
     );
 
     if (isDuplicate) {
-      setVoAddError('This product combination already exists.');
       return;
     }
 
@@ -412,8 +394,6 @@ const handleCancel = () => {
       },
     ]);
 
-    setVoAddError('');
-
     setRequestId('');
     setCategory('');
     setProfile('');
@@ -427,8 +407,6 @@ const handleCancel = () => {
 
   const handleDeleteVoProduct = (productId) => {
     setVoProducts((prev) => prev.filter((product) => product.id !== productId));
-    setVoAddError('');
-    setVoAddSuccess('Product removed.');
   };
 
   const isStepOneValid = () => {
@@ -462,7 +440,7 @@ const handleNext = async () => {
       if (result?.success !== false) {
         setCurrentStep(3); // move to Output only after API/mock returns
       }
-    } catch (error) {
+    } catch {
       // stay on processing step and show error there
     }
   }
@@ -511,8 +489,6 @@ const isNextDisabled =
           isLtd={isLtd}
           setIsLtd={setIsLtd}
           fieldErrors={fieldErrors}
-          setVoAddError={setVoAddError}
-          setVoAddSuccess={setVoAddSuccess}
           clearFieldError={clearFieldError}
           validateRequestId={validateRequestId}
           handleAddVoProduct={handleAddVoProduct}
@@ -570,8 +546,6 @@ const isNextDisabled =
         isLtd={isLtd}
         setIsLtd={setIsLtd}
         fieldErrors={fieldErrors}
-        setVoAddError={setVoAddError}
-        setVoAddSuccess={setVoAddSuccess}
         clearFieldError={clearFieldError}
         validateRequestId={validateRequestId}
         handleAddVoProduct={handleAddVoProduct}

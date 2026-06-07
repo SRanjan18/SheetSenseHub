@@ -1,0 +1,21 @@
+{
+  "defaultEnvironment": "local",
+  "environmentByHostname": {
+    "localhost": "local",
+    "127.0.0.1": "local",
+    "::1": "local",
+    "sheet-sense-hub.vercel.app": "prod"
+  },
+  "environments": {
+    "local": {
+      "appName": "SheetSense Hub",
+      "apiBaseUrl": "http://localhost:8080",
+      "ssoLoginUrl": "http://localhost:8080/auth/login"
+    },
+    "prod": {
+      "appName": "SheetSense Hub",
+      "apiBaseUrl": "https://sheetsensehubbackend-1.onrender.com",
+      "ssoLoginUrl": "https://sheetsensehubbackend-1.onrender.com/auth/login"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {Box,Button,Chip,Container,Paper,Stack,TextField,Typography,Autocomplete,} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import SearchIcon from '@mui/icons-material/Search';
@@ -8,14 +8,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import config from '../../config/config';
 
 const businessOptions = [
   { label: 'AccountSphere (AS)', value: 'AccountSphere (AS)' },
   { label: 'BillingHub (BH)', value: 'BillingHub (BH)' },
   { label: 'UnderwritePro (UP)', value: 'UnderwritePro (UP)' },
 ];
-const API_BASE_URL = 'https://sheetsensehubbackend-1.onrender.com';
-
 const formatDateTime = (value) => {
   if (!value) return '';
   return dayjs(value).format('MM/DD/YYYY, hh:mm:ss A');
@@ -81,7 +80,7 @@ const handleSearch = async () => {
   setLoading(true);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/ingestions/report`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/ingestions/report`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +111,7 @@ const handleSearch = async () => {
       category: item.products.map((cat) => cat.category),
       profile: item.products.map((cat) => cat.profile),
       downloadUrl: item.outputFileName
-        ? `${API_BASE_URL}/api/files/download/${item.outputFileName}`
+        ? `${config.apiBaseUrl}/api/files/download/${item.outputFileName}`
         : '',
     }));
 

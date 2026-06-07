@@ -1,6 +1,46 @@
 # SheetSense Hub
 https://sheet-sense-hub.vercel.app/login
 
+## Getting Started
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd SheetSenseHub
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the local UI:
+
+```bash
+npm run dev
+```
+
+The app starts through Vite, usually at `http://localhost:5173`.
+
+## Runtime Environment
+
+The React UI reads environment settings from `src/config/environments.json`.
+It checks the browser hostname, then selects the matching environment from that
+config file. This config is bundled with the app, so it does not make a separate
+`/env.json` network request.
+
+| Host | Environment | Backend |
+| --- | --- | --- |
+| `localhost`, `127.0.0.1`, `::1` | `local` | `http://localhost:8080` |
+| `sheet-sense-hub.vercel.app` | `prod` | Render production API |
+| unmapped hosts | `local` | `http://localhost:8080` |
+
+The browser console logs the selected environment and API base URL when the app
+starts. Do not put secrets in frontend config files because bundled frontend
+code is visible to browsers.
+
 ## Product Overview
 
 SheetSense Hub is an enterprise spreadsheet automation platform developed by RanjanLabs under the Enterprise Process Intelligence division.

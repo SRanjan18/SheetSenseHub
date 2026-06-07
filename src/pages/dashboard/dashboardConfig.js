@@ -1,7 +1,3 @@
-import Cookies from 'js-cookie';
-
-export const USE_CASE_COOKIE_KEY = 'selectedBusiness';
-
 export const USE_CASE_FAMILY_MAP = {
   'BillingHub (BH)': 'sb',
   'OpsFlow (OF)': 'vo-group',
@@ -81,17 +77,4 @@ export function getCardsForFamily(businessFamily) {
 
 export function getCardAction(cardKey) {
   return CARD_ACTIONS[cardKey] ?? { type: 'reset-step' };
-}
-
-export function saveSelectedBusinessToCookie(selectedBusiness) {
-  if (!selectedBusiness) {
-    Cookies.remove(USE_CASE_COOKIE_KEY);
-    return;
-  }
-
-  Cookies.set(USE_CASE_COOKIE_KEY, selectedBusiness, { expires: 30 });
-}
-
-export function getSelectedBusinessFromCookie() {
-  return Cookies.get(USE_CASE_COOKIE_KEY) ?? '';
 }

@@ -4,7 +4,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ErrorPage from './pages/ErrorPage/ErrorPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import LogoutPage from './pages/LogoutPage/LogoutPage';
-import LoadingPage from './reusable/LoadingPage/LoadingPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ReportPage from './pages/report/ReportPage';
 import AnalyticsPage from './pages/Analytics/AnalyticsPage';

@@ -1,16 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './AnalyticsPage.css';
 import {
   Box,
   Button,
-  Paper,
-  Stack,
   Tab,
   Tabs,
   TextField,
-  Typography,
   Autocomplete,
-  Chip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -32,21 +28,8 @@ import {
   LineChart,
   Line,
 } from 'recharts';
+import config from '../../config/config';
 
-const productOptions = [
-  { label: 'SB', value: 'SB' },
-  { label: 'OCC', value: 'OCC' },
-  { label: 'UST:MED:SUB', value: 'UST:MED:SUB' },
-  { label: 'UST:MED:MLC', value: 'UST:MED:MLC' },
-  { label: 'VO:MED:SUB', value: 'VO:MED:SUB' },
-];
-
-const mockStatusData = [
-  { name: 'Success', value: 18, color: '#007000' },
-  { name: 'Check', value: 7, color: '#F5B700' },
-  { name: 'Critical Check', value: 4, color: '#E40046' },
-  { name: 'Processing Failure', value: 2, color: '#020202' },
-];
 const businessOptions = [
   { label: 'AccountSphere (AS)', value: 'AccountSphere (AS)' },
   { label: 'BillingHub (BH)', value: 'BillingHub (BH)' },
@@ -63,38 +46,6 @@ const getStatusColor = (status) => {
 
   return '#616161';
 };
-const mockReasonCodeData = [
-  { reasonCode: 'RC-101', count: 10 },
-  { reasonCode: 'RC-404', count: 7 },
-  { reasonCode: 'RC-222', count: 5 },
-  { reasonCode: 'RC-909', count: 3 },
-  { reasonCode: 'RC-712', count: 2 },
-];
-
-const mockDailyTxnData = [
-  { date: '05/27', count: 2 },
-  { date: '05/28', count: 4 },
-  { date: '05/29', count: 3 },
-  { date: '05/30', count: 7 },
-  { date: '05/31', count: 5 },
-  { date: '06/01', count: 8 },
-];
-
-const mockWeeklyTxnData = [
-  { date: 'Week 1', count: 14 },
-  { date: 'Week 2', count: 22 },
-  { date: 'Week 3', count: 17 },
-  { date: 'Week 4', count: 26 },
-];
-
-const mockMonthlyTxnData = [
-  { date: 'Jan', count: 42 },
-  { date: 'Feb', count: 38 },
-  { date: 'Mar', count: 51 },
-  { date: 'Apr', count: 47 },
-  { date: 'May', count: 63 },
-  { date: 'Jun', count: 58 },
-];
 
 function EmptyPanel({ title, height = '240px', children }) {
   return (
@@ -253,10 +204,8 @@ if (!selectedBusiness) {
     return !Object.values(nextErrors).some(Boolean);
   };
 
-const API_BASE_URL = 'https://sheetsensehubbackend-1.onrender.com';
-
 const callAnalyticsApi = async (endpoint, payload) => {
-  const response = await fetch(`${API_BASE_URL}/api/analytics/${endpoint}`, {
+  const response = await fetch(`${config.apiBaseUrl}/api/analytics/${endpoint}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -349,6 +298,8 @@ const handleSearch = async () => {
 
   useEffect(() => {
     handleSearch();
+    // Run the initial dashboard fetch only once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const transactionTitle = useMemo(() => {

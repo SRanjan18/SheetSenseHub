@@ -1,3 +1,9 @@
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
+import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined';
+import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStatsOutlined';
+
 export const USE_CASE_FAMILY_MAP = {
   'BillingHub (BH)': 'sb',
   'OpsFlow (OF)': 'vo-group',
@@ -13,24 +19,25 @@ const DEFAULT_CARDS = [
   {
     key: 'file-station',
     title: 'Data Processing',
-    image: '📁',
+    icon: CloudUploadOutlinedIcon,
     description: 'Click on below button to go to Data Ingestion',
     buttonText: 'Data Ingestion',
   },
   {
-    key: 'report',
-    title: 'Report',
-    image: '📈',
-    description: 'Click on below button to view report for processed cases.',
-    buttonText: 'View Report',
-  },
-  {
     key: 'analytics',
     title: 'Insights',
-    image: '📊',
+    icon: QueryStatsOutlinedIcon,
     description: 'Click on below button to view insights for processed cases.',
     buttonText: 'View Insights',
   },
+  {
+    key: 'report',
+    title: 'Report',
+    icon: DescriptionOutlinedIcon,
+    description: 'Click on below button to view report for processed cases.',
+    buttonText: 'View Report',
+  },
+  
 ];
 
 const CARD_SETS = {
@@ -38,7 +45,7 @@ const CARD_SETS = {
     {
       key: 'search',
       title: 'Search',
-      image: '🔎',
+      icon: ManageSearchOutlinedIcon,
       description: 'Click on below button to search processed category file.',
       buttonText: 'Search Record',
     },
@@ -50,7 +57,7 @@ const CARD_SETS = {
     {
       key: 'occ',
       title: 'OCC',
-      image: '🗂️',
+      icon: FolderSpecialOutlinedIcon,
       description: 'Click on below button to add/edit OCC Details',
       buttonText: 'Library Add/Edit',
     },

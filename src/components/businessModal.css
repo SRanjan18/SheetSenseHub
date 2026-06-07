@@ -3,7 +3,7 @@
 }
 
 .usecase-dialog-paper {
-  border: 3px solid #0f5fb8;
+  border: 3px solid #00856f;
   border-radius: 0 !important;
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24) !important;
   max-width: 720px !important;
@@ -16,7 +16,7 @@
 .usecase-dialog-title {
   margin-bottom: 24px !important;
   text-align: center;
-  color: #163d95;
+  color: #00856f;
   font-family: Georgia, 'Times New Roman', serif !important;
   font-size: 34px !important;
   font-weight: 700 !important;
@@ -41,6 +41,6 @@
 
 .usecase-dialog-label .MuiFormControlLabel-label {
   font-size: 16px;
-  color: #404040;
+  color: #17211d;
   font-weight: 500;
 }

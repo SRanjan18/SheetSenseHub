@@ -3,18 +3,18 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   background:
-    radial-gradient(circle at top, rgba(95, 127, 189, 0.18), transparent 24%),
-    linear-gradient(180deg, #f5f8ff 0%, #ffffff 100%);
+    radial-gradient(circle at top, rgba(0, 133, 111, 0.18), transparent 24%),
+    linear-gradient(180deg, #f1faf6 0%, #ffffff 100%);
 }
 
 .auth-screen__left {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 10% 12%, rgba(124, 160, 255, 0.24) 0, rgba(124, 160, 255, 0.08) 18%, transparent 30%),
-    radial-gradient(circle at 80% 18%, rgba(130, 180, 255, 0.22) 0, rgba(130, 180, 255, 0.08) 16%, transparent 32%),
-    radial-gradient(circle at 35% 85%, rgba(88, 117, 194, 0.18) 0, rgba(88, 117, 194, 0.05) 18%, transparent 32%),
-    linear-gradient(135deg, #0c1e3f 0%, #162d58 45%, #1e3c72 100%);
+    radial-gradient(circle at 10% 12%, rgba(183, 227, 95, 0.24) 0, rgba(183, 227, 95, 0.08) 18%, transparent 30%),
+    radial-gradient(circle at 80% 18%, rgba(0, 133, 111, 0.22) 0, rgba(0, 133, 111, 0.08) 16%, transparent 32%),
+    radial-gradient(circle at 35% 85%, rgba(14, 59, 52, 0.18) 0, rgba(14, 59, 52, 0.05) 18%, transparent 32%),
+    linear-gradient(135deg, #0b2f2a 0%, #0f4a40 45%, #0e3b34 100%);
 }
 
 .auth-screen__left::before,
@@ -30,7 +30,7 @@
   height: 180px;
   left: -10%;
   top: 100px;
-  background: linear-gradient(90deg, rgba(126, 157, 220, 0.18), rgba(126, 157, 220, 0.45));
+  background: linear-gradient(90deg, rgba(183, 227, 95, 0.18), rgba(183, 227, 95, 0.45));
   transform: rotate(-10deg);
 }
 
@@ -39,7 +39,7 @@
   height: 220px;
   left: -20%;
   bottom: 90px;
-  background: linear-gradient(90deg, rgba(126, 157, 220, 0.12), rgba(126, 157, 220, 0.38));
+  background: linear-gradient(90deg, rgba(183, 227, 95, 0.12), rgba(183, 227, 95, 0.38));
   transform: rotate(-8deg);
 }
 
@@ -48,7 +48,7 @@
   top: 28px;
   left: 24px;
   background: #dedede;
-  color: #333;
+  color: #17211d;
   padding: 4px 10px;
   font-size: 11px;
   border-radius: 2px;
@@ -82,8 +82,8 @@
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at top, rgba(95, 127, 189, 0.08), transparent 18%),
-    linear-gradient(180deg, #ffffff 0%, #f6f8ff 100%);
+    radial-gradient(circle at top, rgba(0, 133, 111, 0.08), transparent 18%),
+    linear-gradient(180deg, #ffffff 0%, #f1faf6 100%);
 }
 
 .auth-screen__login-panel {
@@ -91,15 +91,15 @@
   width: 100%;
   max-width: 380px;
   padding: 28px 24px;
-  border: 1px solid rgba(95, 127, 189, 0.22);
+  border: 1px solid rgba(0, 133, 111, 0.22);
   border-radius: 24px;
-  background: rgba(247, 249, 255, 0.95);
-  box-shadow: 0 18px 45px rgba(15, 40, 78, 0.12);
+  background: rgba(241, 250, 246, 0.95);
+  box-shadow: 0 18px 45px rgba(14, 59, 52, 0.12);
 }
 
 .auth-screen__login-panel h2 {
   margin: 0 0 10px;
-  color: #1f4f8b;
+  color: #00856f;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 23px;
   font-weight: 700;
@@ -111,7 +111,7 @@
 
 .auth-screen__login-panel p {
   margin: 0 0 18px;
-  color: #0a3189;
+  color: #00856f;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 16px;
   font-weight: 700;
@@ -119,7 +119,7 @@
 
 .auth-screen__login-btn {
   border: none;
-  background: linear-gradient(135deg, #5f7fbd 0%, #4a77c1 100%);
+  background: linear-gradient(135deg, #00856f 0%, #006c5b 100%);
   color: #fff;
   font-weight: 700;
   font-size: 13px;
@@ -128,9 +128,9 @@
   min-width: 220px;
   cursor: pointer;
   letter-spacing: 0.3px;
-  box-shadow: 0 10px 24px rgba(95, 127, 189, 0.28);
+  box-shadow: 0 10px 24px rgba(0, 133, 111, 0.28);
 }
 
 .auth-screen__login-btn:hover {
-  background: linear-gradient(135deg, #4a6a9e 0%, #3b5d93 100%);
+  background: linear-gradient(135deg, #006c5b 0%, #0e3b34 100%);
 }

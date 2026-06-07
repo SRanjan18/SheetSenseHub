@@ -23,12 +23,43 @@ const formatDateTime = (value) => {
 const getStatusColor = (status) => {
   const s = String(status || '').toUpperCase();
 
-  if (s === 'COMPLETED') return '#007000';
-  if (s === 'FAILED') return '#E40046';
-  if (s === 'PROCESSING') return '#F5B700';
-  if (s === 'INGESTED') return '#3a31b0';
+  if (s === 'COMPLETED') return '#168a5a';
+  if (s === 'FAILED') return '#b42318';
+  if (s === 'PROCESSING') return '#b58a00';
+  if (s === 'INGESTED') return '#0e3b34';
 
-  return '#616161';
+  return '#5f6f68';
+};
+
+const containedButtonSx = {
+  backgroundColor: '#00856f',
+  color: '#fff',
+  borderRadius: 999,
+  px: 3,
+  minHeight: 48,
+  textTransform: 'none',
+  fontWeight: 700,
+  '&:hover': {
+    backgroundColor: '#006c5b',
+  },
+};
+
+const outlinedButtonSx = {
+  borderColor: '#00856f',
+  color: '#00856f',
+  borderRadius: 999,
+  minHeight: 48,
+  textTransform: 'none',
+  fontWeight: 700,
+  '&:hover': {
+    borderColor: '#006c5b',
+    backgroundColor: 'rgba(0, 133, 111, 0.08)',
+    color: '#006c5b',
+  },
+  '&.Mui-disabled': {
+    borderColor: '#d8e4de',
+    color: '#8a9a93',
+  },
 };
 
 export default function ReportPage() {
@@ -218,6 +249,14 @@ const handleSearch = async () => {
             size="small"
             startIcon={<DownloadIcon />}
             onClick={() => window.open(params.row.downloadUrl, '_blank')}
+            sx={{
+              color: '#00856f',
+              textTransform: 'none',
+              fontWeight: 700,
+              '&:hover': {
+                backgroundColor: 'rgba(0, 133, 111, 0.08)',
+              },
+            }}
           >
             File
           </Button>
@@ -235,7 +274,7 @@ const handleSearch = async () => {
         <Box
           sx={{
             background:
-              'linear-gradient(90deg, #3487c7 0%, #1d3f91 45%, #3a31b0 100%)',
+              'linear-gradient(90deg, #42b69f 0%, #00856f 45%, #0e3b34 100%)',
             minHeight: 120,
             display: 'flex',
             alignItems: 'center',
@@ -313,13 +352,7 @@ const handleSearch = async () => {
                   variant="contained"
                   startIcon={<SearchIcon />}
                   onClick={handleSearch}
-                  sx={{
-                    borderRadius: 999,
-                    px: 3,
-                    minHeight: 48,
-                    textTransform: 'none',
-                    fontWeight: 700,
-                  }}
+                  sx={containedButtonSx}
                 >
                   Search
                 </Button>
@@ -327,7 +360,7 @@ const handleSearch = async () => {
                 <Button
                   variant="outlined"
                   startIcon={<BarChartIcon />}
-                  sx={{ minHeight: 48, textTransform: 'none' }}
+                  sx={outlinedButtonSx}
                 >
                   Analytics
                 </Button>
@@ -348,12 +381,15 @@ const handleSearch = async () => {
               </Typography>
 
               <Stack direction="row" spacing={1}>
-                <Button variant="outlined">Filter Dataset</Button>
+                <Button variant="outlined" sx={outlinedButtonSx}>
+                  Filter Dataset
+                </Button>
                 <Button
                   variant="outlined"
                   startIcon={<DownloadIcon />}
                   onClick={handleDownloadCsv}
                   disabled={!rows.length}
+                  sx={outlinedButtonSx}
                 >
                   Download
                 </Button>

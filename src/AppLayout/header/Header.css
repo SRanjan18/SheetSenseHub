@@ -1,6 +1,6 @@
 .shell-header {
   background: #ffffff !important;
-  color: #0a2a75 !important;
+  color: #0e3b34 !important;
   border-bottom: 1px solid #ececec;
 }
 
@@ -25,12 +25,12 @@
 }
 
 .shell-logo-icon {
-  color: #0a2a75;
+  color: #0e3b34;
   font-size: 24px !important;
 }
 
 .shell-logo {
-  color: #0a2a75;
+  color: #0e3b34;
   font-size: 14px !important;
   font-weight: 700 !important;
   line-height: 1.05 !important;
@@ -39,13 +39,13 @@
 .shell-divider {
   width: 1px;
   height: 32px;
-  background: #d7d7d7;
+  background: #d8e4de;
 }
 
 .shell-product {
   font-size: 15px !important;
   font-weight: 500 !important;
-  color: #666 !important;
+  color: #5f6f68 !important;
 }
 
 .shell-header__nav {
@@ -61,11 +61,11 @@
   min-width: auto !important;
   font-size: 12px !important;
   font-weight: 700 !important;
-  color: #0a2a75 !important;
+  color: #0e3b34 !important;
 }
 
 .shell-link:hover {
-  background: rgba(10, 49, 137, 0.08) !important;
+  background: rgba(0, 133, 111, 0.08) !important;
 }
 
 .shell-link--nav {
@@ -73,12 +73,12 @@
 }
 
 .shell-link--active-tab {
-  background: #0a3189 !important;
+  background: #00856f !important;
   color: #ffffff !important;
 }
 
 .shell-link--active-tab:hover {
-  background: #08296f !important;
+  background: #006c5b !important;
 }
 
 .shell-dropdown-paper {
@@ -92,22 +92,22 @@
 .shell-dropdown-item {
   font-size: 13px !important;
   font-weight: 600 !important;
-  color: #1f69d2 !important;
+  color: #00856f !important;
   padding: 10px 14px !important;
 }
 
 .shell-dropdown-item.Mui-selected {
-  background: rgba(10, 49, 137, 0.08) !important;
-  color: #0a3189 !important;
+  background: rgba(0, 133, 111, 0.08) !important;
+  color: #00856f !important;
 }
 
 .shell-dropdown-item.Mui-selected:hover {
-  background: rgba(10, 49, 137, 0.12) !important;
+  background: rgba(0, 133, 111, 0.12) !important;
 }
 
 .shell-user-trigger {
   text-transform: none !important;
-  color: #0a2a75 !important;
+  color: #0e3b34 !important;
   font-size: 12px !important;
   font-weight: 700 !important;
   border-radius: 12px !important;
@@ -116,7 +116,7 @@
 }
 
 .shell-user-trigger:hover {
-  background: rgba(10, 49, 137, 0.08) !important;
+  background: rgba(0, 133, 111, 0.08) !important;
 }
 
 .shell-user-trigger__text {
@@ -128,7 +128,7 @@
   height: 34px !important;
   font-size: 14px !important;
   font-weight: 700 !important;
-  background: #0a2a75 !important;
+  background: #0e3b34 !important;
 }
 
 .shell-user-popover {

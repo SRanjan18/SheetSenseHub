@@ -52,35 +52,35 @@ function formatProfileLabel(value) {
 const StyledStepper = styled(Stepper)(() => ({
   padding: '8px 10px 18px',
   '& .MuiStepConnector-line': {
-    borderColor: '#d9d9d9',
+    borderColor: '#d8e4de',
     borderTopWidth: 3,
     borderRadius: 999,
   },
   '& .Mui-completed .MuiStepConnector-line': {
-    borderColor: '#1f69d2',
+    borderColor: '#00856f',
   },
   '& .MuiStepLabel-label': {
     marginTop: 8,
     fontSize: 12,
     fontWeight: 600,
-    color: '#666',
+    color: '#5f6f68',
   },
   '& .MuiStepLabel-label.Mui-active': {
-    color: '#0a3189',
+    color: '#00856f',
     fontWeight: 700,
   },
   '& .MuiStepLabel-label.Mui-completed': {
-    color: '#1f69d2',
+    color: '#00856f',
     fontWeight: 700,
   },
   '& .MuiStepIcon-root': {
-    color: '#d7dbe6',
+    color: '#d8e4de',
   },
   '& .MuiStepIcon-root.Mui-active': {
-    color: '#1f69d2',
+    color: '#00856f',
   },
   '& .MuiStepIcon-root.Mui-completed': {
-    color: '#1f69d2',
+    color: '#00856f',
   },
   '& .MuiStepIcon-text': {
     fill: '#fff',
@@ -623,7 +623,9 @@ const isNextDisabled =
                     {card.title}
                   </Typography>
 
-                  <Box className="dashboard-mui-card__image">{card.image}</Box>
+                  <Box className="dashboard-mui-card__icon-wrap">
+                    <card.icon className="dashboard-mui-card__icon" />
+                  </Box>
 
                   <Typography className="dashboard-mui-card__desc">
                     {card.description}

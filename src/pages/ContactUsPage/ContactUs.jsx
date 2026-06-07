@@ -32,7 +32,8 @@ export default function ContactUs() {
           position: 'relative',
           width: '100%',
           height: 260,
-          backgroundColor: '#0c1e3f',
+          background:
+            'radial-gradient(circle at 50% 0%, rgba(183, 227, 95, 0.14), transparent 26%), linear-gradient(135deg, #062721 0%, #0b2f2a 48%, #0e3b34 100%)',
           overflow: 'hidden',
         }}
       >
@@ -42,18 +43,21 @@ export default function ContactUs() {
           alt="Contact Us Background"
           sx={{
             position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            opacity: 0.95,
+            left: '50%',
+            top: '50%',
+            width: { xs: '88vw', md: 760, lg: 900 },
+            maxWidth: 'calc(100% - 80px)',
+            height: 'auto',
+            transform: 'translate(-50%, -50%)',
+            opacity: 0.68,
           }}
         />
         <Box
           sx={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.45))',
+            background:
+              'linear-gradient(90deg, rgba(6, 39, 33, 0.5) 0%, rgba(6, 39, 33, 0.2) 48%, rgba(6, 39, 33, 0.5) 100%), linear-gradient(rgba(0,0,0,0.08), rgba(0,0,0,0.34))',
           }}
         />
         <Box
@@ -79,7 +83,7 @@ export default function ContactUs() {
           >
             Contact Us
           </Typography>
-          <Typography sx={{ fontSize: 13, mt: 1, color: '#d8e2ff' }}>
+          <Typography sx={{ fontSize: 13, mt: 1, color: '#dff8f2' }}>
             Our teams are here to help
           </Typography>
         </Box>
@@ -110,9 +114,10 @@ export default function ContactUs() {
               sx={{
                 width: '100%',
                 maxWidth: 360,
-                border: '1px solid rgba(95, 127, 189, 0.22)',
-                backgroundColor: '#f7f9ff',
-                boxShadow: '0px 18px 45px rgba(15, 40, 78, 0.08)',
+                border: '1px solid rgba(0, 133, 111, 0.22)',
+                borderTop: '4px solid #b7e35f',
+                backgroundColor: '#f1faf6',
+                boxShadow: '0px 18px 45px rgba(14, 59, 52, 0.08)',
                 borderRadius: 3,
                 mx: 'auto',
               }}
@@ -131,10 +136,11 @@ export default function ContactUs() {
               >
                 <Typography
                   sx={{
-                    color: '#4a77c1',
+                    color: '#00856f',
                     fontWeight: 700,
                     fontSize: 26,
                     mb: 2,
+                    letterSpacing: '0.01em',
                   }}
                 >
                   {item.title}
@@ -143,7 +149,7 @@ export default function ContactUs() {
                 <Typography
                   sx={{
                     fontSize: 15,
-                    color: '#233857',
+                    color: '#17211d',
                     mb: 3,
                     minHeight: 42,
                   }}
@@ -158,13 +164,14 @@ export default function ContactUs() {
                   justifyContent="center"
                   sx={{ mb: 2 }}
                 >
-                  <EmailOutlinedIcon sx={{ fontSize: 22, color: '#5f7fbd' }} />
+                  <EmailOutlinedIcon sx={{ fontSize: 22, color: '#006c5b' }} />
                   <Link
                     href={`mailto:${item.email}`}
                     underline="hover"
                     sx={{
-                      color: '#1f4f8b',
+                      color: '#006c5b',
                       fontSize: 15,
+                      fontWeight: 600,
                       wordBreak: 'break-word',
                     }}
                   >
@@ -176,7 +183,9 @@ export default function ContactUs() {
                   variant="contained"
                   href={`mailto:${item.email}`}
                   sx={{
-                    backgroundColor: '#5f7fbd',
+                    background: 'linear-gradient(135deg, #00856f 0%, #006c5b 100%)',
+                    border: '1px solid rgba(183, 227, 95, 0.42)',
+                    boxShadow: '0 10px 24px rgba(0, 133, 111, 0.18)',
                     color: '#fff',
                     textTransform: 'none',
                     alignSelf: 'center',
@@ -184,7 +193,8 @@ export default function ContactUs() {
                     py: 1.25,
                     fontSize: 14,
                     '&:hover': {
-                      backgroundColor: '#4a6a9e',
+                      background: 'linear-gradient(135deg, #006c5b 0%, #0b2f2a 100%)',
+                      boxShadow: '0 12px 28px rgba(0, 108, 91, 0.24)',
                     },
                   }}
                 >

@@ -234,7 +234,8 @@ export default function UserManagement() {
           position: 'relative',
           width: '100%',
           height: 180,
-          backgroundColor: '#0c1e3f',
+          background:
+            'radial-gradient(circle at 50% 0%, rgba(183, 227, 95, 0.13), transparent 26%), linear-gradient(135deg, #062721 0%, #0b2f2a 48%, #0e3b34 100%)',
           overflow: 'hidden',
         }}
       >
@@ -244,11 +245,13 @@ export default function UserManagement() {
           alt="User Management Background"
           sx={{
             position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            opacity: 0.95,
+            left: '50%',
+            top: '50%',
+            width: { xs: '88vw', md: 620, lg: 700 },
+            maxWidth: 'calc(100% - 80px)',
+            height: 'auto',
+            transform: 'translate(-50%, -50%)',
+            opacity: 0.7,
           }}
         />
         <Box
@@ -258,7 +261,8 @@ export default function UserManagement() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(0,0,0,0.25)',
+            background:
+              'linear-gradient(90deg, rgba(6, 39, 33, 0.55) 0%, rgba(6, 39, 33, 0.24) 48%, rgba(6, 39, 33, 0.55) 100%), rgba(0,0,0,0.12)',
           }}
         >
           <Typography
@@ -294,11 +298,14 @@ export default function UserManagement() {
             startIcon={<AddIcon />}
             onClick={handleOpenAdd}
             sx={{
-              backgroundColor: '#5f7fbd',
+              background: 'linear-gradient(135deg, #00856f 0%, #006c5b 100%)',
+              border: '1px solid rgba(183, 227, 95, 0.42)',
+              boxShadow: '0 10px 24px rgba(0, 133, 111, 0.18)',
               color: '#fff',
               textTransform: 'none',
               '&:hover': {
-                backgroundColor: '#4a6a9e',
+                background: 'linear-gradient(135deg, #006c5b 0%, #0b2f2a 100%)',
+                boxShadow: '0 12px 28px rgba(0, 108, 91, 0.24)',
               },
             }}
           >
@@ -306,7 +313,16 @@ export default function UserManagement() {
           </Button>
         </Stack>
 
-        <Paper sx={{ width: '100%', minHeight: 360, overflow: 'hidden' }}>
+        <Paper
+          sx={{
+            width: '100%',
+            minHeight: 360,
+            overflow: 'hidden',
+            border: '1px solid rgba(0, 133, 111, 0.14)',
+            borderTop: '4px solid #b7e35f',
+            boxShadow: '0 18px 45px rgba(14, 59, 52, 0.08)',
+          }}
+        >
           <DataGrid
             autoHeight
             rows={filteredRows}
@@ -321,12 +337,13 @@ export default function UserManagement() {
             sx={{
               border: 0,
               '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#eaf1ff',
-                color: '#233857',
+                backgroundColor: '#e7f9f1',
+                color: '#17211d',
                 fontWeight: 700,
+                borderBottom: '1px solid rgba(0, 133, 111, 0.24)',
               },
               '& .MuiDataGrid-row:hover': {
-                backgroundColor: 'rgba(95, 127, 189, 0.08)',
+                backgroundColor: 'rgba(0, 133, 111, 0.08)',
               },
               '& .MuiDataGrid-virtualScroller': {
                 overflow: 'visible !important',

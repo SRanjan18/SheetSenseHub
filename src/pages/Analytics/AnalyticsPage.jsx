@@ -39,12 +39,12 @@ const businessOptions = [
 const getStatusColor = (status) => {
   const s = String(status || '').toUpperCase();
 
-  if (s === 'COMPLETED') return '#007000';
-  if (s === 'FAILED') return '#E40046';
-  if (s === 'PROCESSING') return '#F5B700';
-  if (s === 'INGESTED') return '#3a31b0';
+  if (s === 'COMPLETED') return '#168a5a';
+  if (s === 'FAILED') return '#b42318';
+  if (s === 'PROCESSING') return '#b58a00';
+  if (s === 'INGESTED') return '#0e3b34';
 
-  return '#616161';
+  return '#5f6f68';
 };
 
 function EmptyPanel({ title, height = '240px', children }) {
@@ -118,7 +118,7 @@ function ProductPopularityChart({ data }) {
             width={100}
           />
           <Tooltip />
-          <Bar dataKey="count" fill="#3a31b0" radius={[0, 6, 6, 0]} />
+          <Bar dataKey="count" fill="#00856f" radius={[0, 6, 6, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -143,7 +143,7 @@ function TransactionChart({ title, data }) {
             type="monotone"
             dataKey="count"
             name={title}
-            stroke="#6b4eff"
+            stroke="#00856f"
             strokeWidth={3}
             dot={{ r: 5 }}
             activeDot={{ r: 7 }}

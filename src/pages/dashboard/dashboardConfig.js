@@ -3,17 +3,9 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
 import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStatsOutlined';
+import { BUSINESS_FAMILY_MAP } from '../../config/businesses';
 
-export const USE_CASE_FAMILY_MAP = {
-  'BillingHub (BH)': 'sb',
-  'OpsFlow (OF)': 'vo-group',
-  'UnderwritePro (UP)': 'vo-group',
-  'AccountSphere (AS)': 'vo-group',
-  'QuoteVision (QV)': 'search-group',
-  'HealthQuote+ (HQ+)': 'search-group',
-  'ListFlow (LF)': 'simple-group',
-  'MediUnderwrite(MU)': 'simple-group',
-};
+export const USE_CASE_FAMILY_MAP = BUSINESS_FAMILY_MAP;
 
 const DEFAULT_CARDS = [
   {

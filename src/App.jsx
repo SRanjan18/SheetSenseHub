@@ -1,9 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './AppLayout/AppLayout';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './routes/ProtectedRoute';
 import ErrorPage from './pages/ErrorPage/ErrorPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import LogoutPage from './pages/LogoutPage/LogoutPage';
+import AboutPage from './pages/AboutPage/AboutPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ReportPage from './pages/report/ReportPage';
 import AnalyticsPage from './pages/Analytics/AnalyticsPage';
@@ -25,11 +26,12 @@ export default function App() {
           </ProtectedRoute>
         }
       >
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/report" element={<ReportPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
-         <Route path="/contact-us" element={<ContactUs />} />
-          <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/user-management" element={<UserManagement />} />
       </Route>
     </Routes>
   );

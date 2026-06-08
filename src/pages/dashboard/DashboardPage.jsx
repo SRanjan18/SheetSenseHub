@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { useBusiness } from '../../context/businessContext';
-import config from '../../config/config';
 import './DashboardPage.css';
 import { styled } from '@mui/material/styles';
 import OutputTable from './steps/OutputTable';
@@ -22,6 +22,10 @@ import {
   StepLabel,
   Stepper,
 } from '@mui/material';
+import {
+  resetIngestion,
+  uploadIngestion,
+} from '../../redux/apis/ingestion/action';
 
 const STEP_TITLES = ['Request Setup', 'Source Upload', 'Data Processing', 'Results'];
 
@@ -90,8 +94,14 @@ const StyledStepper = styled(Stepper)(() => ({
 }));
 
 export default function DashboardPage() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { selectedBusiness } = useBusiness();
+  const {
+    data: ingestionResponse,
+    error: ingestionError,
+    loading: ingestionLoading,
+  } = useSelector((state) => state.ingestion);
   const hasBusiness = Boolean(selectedBusiness);
   const businessFamily = getBusinessFamily(selectedBusiness);
 
@@ -105,9 +115,6 @@ export default function DashboardPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [voProducts, setVoProducts] = useState([]);
   const [fieldErrors, setFieldErrors] = useState({});
-  const [ingestionLoading, setIngestionLoading] = useState(false);
-const [ingestionError, setIngestionError] = useState('');
-const [ingestionResponse, setIngestionResponse] = useState(null);
 
   const cards = getCardsForFamily(businessFamily);
   const showStepper = businessFamily !== 'search-group';
@@ -151,10 +158,8 @@ const [ingestionResponse, setIngestionResponse] = useState(null);
   setCurrentStep(0);
   setVoProducts([]);
   setFieldErrors({});
-  setIngestionLoading(false);
-  setIngestionError('');
-  setIngestionResponse(null);
-}, [selectedBusiness]);
+  dispatch(resetIngestion());
+}, [dispatch, selectedBusiness]);
 
   const clearFieldError = (field) => {
     setFieldErrors((prev) => ({
@@ -220,89 +225,7 @@ const submitIngestion = async () => {
   const payload = buildIngestionPayload();
 
   console.log('Ingestion payload >>>', JSON.stringify(payload, null, 2));
-
-  setIngestionLoading(true);
-  setIngestionError('');
-  setIngestionResponse(null);
-
-  try {
-    // MOCK FLOW FOR NOW
-    // await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // const mockResponse = {
-    //   success: true,
-    //   body: productsForResponse.length
-    //     ? productsForResponse.map((product, index) => ({
-    //         id: index + 1,
-    //         category: product.category,
-    //         profile: product.profile,
-    //         orthodontic_coverage: payload.orthodontic_coverage ? 'Yes' : 'No',
-    //         request_id: payload.request_id || 'N/A',
-    //         organization: payload.organization || 'N/A',
-    //         business: payload.business || 'N/A',
-    //         file_name: payload.file_name || 'N/A',
-    //         is_ltd:
-    //           payload.business === 'BillingHub (BH)'
-    //             ? Boolean(payload.is_ltd)
-    //               ? 'Yes'
-    //               : 'No'
-    //             : 'N/A',
-    //       }))
-    //     : [
-    //         {
-    //           id: 1,
-    //           category: 'N/A',
-    //           profile: 'N/A',
-    //           orthodontic_coverage: payload.orthodontic_coverage ? 'Yes' : 'No',
-    //           request_id: payload.request_id || 'N/A',
-    //           organization: payload.organization || 'N/A',
-    //           business: payload.business || 'N/A',
-    //           file_name: payload.file_name || 'N/A',
-    //           is_ltd:
-    //             payload.business === 'BillingHub (BH)'
-    //               ? Boolean(payload.is_ltd)
-    //                 ? 'Yes'
-    //                 : 'No'
-    //               : 'N/A',
-    //         },
-    //       ],
-    // };
-
-    // setIngestionResponse(mockResponse);
-    // return mockResponse;
-
-    
-    // FUTURE REAL API FLOW - UNCOMMENT LATER
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('payload', JSON.stringify(payload));
-     const response = await fetch(`${config.apiBaseUrl}/api/ranjanLabs/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Ingestion failed with status ${response.status}`);
-    }
-
-    const result = await response.json();
-
-    const safeResult = {
-      ...result,
-      body: Array.isArray(result?.body) ? result.body : [],
-    };
-
-    setIngestionResponse(safeResult);
-    return safeResult;
-    
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Something went wrong during ingestion.';
-    setIngestionError(message);
-    throw error;
-  } finally {
-    setIngestionLoading(false);
-  }
+  return dispatch(uploadIngestion({ file: selectedFile, payload }));
 };
   const handleCardClick = (key) => {
     const action = getCardAction(key);
@@ -331,9 +254,7 @@ const handleCancel = () => {
   setCurrentStep(0);
   setVoProducts([]);
   setFieldErrors({});
-  setIngestionLoading(false);
-  setIngestionError('');
-  setIngestionResponse(null);
+  dispatch(resetIngestion());
 };
 
   const validateVoFields = () => {
@@ -441,7 +362,7 @@ const handleNext = async () => {
         setCurrentStep(3); // move to Output only after API/mock returns
       }
     } catch {
-      // stay on processing step and show error there
+      // Stay on processing step; the API error is shown as a toast.
     }
   }
 };
@@ -450,8 +371,7 @@ const handleNext = async () => {
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1);
     }
-
-    setIngestionError('');
+    dispatch(resetIngestion());
   };
 
   const handleFileChange = (event) => {
@@ -514,23 +434,6 @@ const isNextDisabled =
 
   if (currentStep === 2) {
   return (
-    <div>
-      {ingestionError ? (
-        <div
-          style={{
-            marginBottom: '12px',
-            padding: '12px 16px',
-            borderRadius: '10px',
-            background: '#ffe8e8',
-            border: '1px solid #f3b3b3',
-            color: '#b42318',
-            fontWeight: 600,
-          }}
-        >
-          {ingestionError}
-        </div>
-      ) : null}
-
       <EnterInformation
         businessFamily={businessFamily}
         organization={organization}
@@ -564,7 +467,6 @@ const isNextDisabled =
           onDeleteProduct: handleDeleteVoProduct,
         }}
       />
-    </div>
   );
 }
 

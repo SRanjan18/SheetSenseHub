@@ -1,22 +1,26 @@
-.simple-table-wrapper {
+.app-table-wrapper {
   overflow-x: auto;
 }
 
-.simple-table {
+.app-table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
 }
 
-.simple-table th,
-.simple-table td {
+.app-table th,
+.app-table td {
   border: 1px solid #e5e7eb;
   padding: 12px;
   text-align: left;
   font-size: 14px;
 }
 
-.simple-table th {
+.app-table th {
   background: #f8fafc;
   font-weight: 700;
+}
+
+.app-table-data-grid {
+  width: 100%;
 }

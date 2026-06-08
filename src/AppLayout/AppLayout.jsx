@@ -1,22 +1,12 @@
 import { useState } from 'react';
 
-import BusinessModal from '../components/businessModal';
+import BusinessSelectorModal from '../components/business-selector/BusinessSelectorModal';
 import { useBusiness } from '../context/businessContext';
 import Header from './header/Header';
 import Footer from './footer/Footer';
 import './AppLayout.css';
 import { Outlet } from 'react-router-dom';
-// Keep this list outside the component to avoid recreating it on every render.
-const USE_CASES = [
-  'BillingHub (BH)',
-  'OpsFlow (OF)',
-  'UnderwritePro (UP)',
-  'AccountSphere (AS)',
-  'QuoteVision (QV)',
-  'HealthQuote+ (HQ+)',
-  'ListFlow (LF)',
-  'MediUnderwrite(MU)',
-];
+import { ACTIVE_BUSINESSES } from '../config/businesses';
 
 export default function AppLayout({ children }) {
   const { selectedBusiness, setSelectedBusiness } = useBusiness();
@@ -31,7 +21,7 @@ export default function AppLayout({ children }) {
     <div className="shell">
       <Header
         selectedBusiness={selectedBusiness}
-        businesses={USE_CASES}
+        businesses={ACTIVE_BUSINESSES}
         onBusinessSelect={handleBusinessSelect}
       />
 
@@ -40,9 +30,9 @@ export default function AppLayout({ children }) {
       </main>
       <Footer />
 
-      <BusinessModal
+      <BusinessSelectorModal
         isOpen={showBusinessModal}
-        businesses={USE_CASES}
+        businesses={ACTIVE_BUSINESSES}
         selectedBusiness={selectedBusiness}
         onSelect={handleBusinessSelect}
         // Prevent closing the modal when no business is selected yet.

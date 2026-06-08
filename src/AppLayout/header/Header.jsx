@@ -32,6 +32,10 @@ export default function Header({
   const isUserPanelOpen = Boolean(userAnchorEl);
   const businessLabel = selectedBusiness || 'Select';
 
+  const handleAboutClick = () => {
+    navigate('/about');
+  };
+
   const handleDashboardClick = () => {
     navigate('/dashboard');
   };
@@ -76,6 +80,15 @@ export default function Header({
         </Box>
 
         <Box className="shell-header__nav">
+          <Button
+            className={`shell-link shell-link--nav ${
+              location.pathname === '/about' ? 'shell-link--active-tab' : ''
+            }`}
+            onClick={handleAboutClick}
+          >
+            About
+          </Button>
+
           <Button
             className={`shell-link shell-link--nav ${
               location.pathname === '/dashboard' ? 'shell-link--active-tab' : ''

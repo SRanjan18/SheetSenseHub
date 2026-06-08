@@ -7,9 +7,9 @@ import {
   Typography,
   Box,
 } from '@mui/material';
-import './businessModal.css';
+import './BusinessSelectorModal.css';
 
-export default function businessModal({
+export default function BusinessSelectorModal({
   isOpen,
   businesses,
   selectedBusiness,

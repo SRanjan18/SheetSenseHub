@@ -1,4 +1,4 @@
-import SimpleTable from '../../../components/ui/SimpleTable';
+import AppTable from '../../../components/table/AppTable';
 
 export default function OutputTable({
   organization,
@@ -49,7 +49,7 @@ export default function OutputTable({
         <div className="dashboard-output-table-card">
           <div className="dashboard-output-table-card__header"> Business Processed Details</div>
           <div className="dashboard-output-table-card__body">
-            <SimpleTable columns={columns} data={data} />
+            <AppTable columns={columns} data={data} />
           </div>
         </div>
       </div>

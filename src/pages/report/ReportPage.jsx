@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {Box,Button,Chip,Container,Paper,Stack,TextField,Typography,Autocomplete,} from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 import SearchIcon from '@mui/icons-material/Search';
 import DownloadIcon from '@mui/icons-material/Download';
 import BarChartIcon from '@mui/icons-material/BarChart';
@@ -8,13 +8,16 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import config from '../../config/config';
+import { prepareFileDownload } from '../../redux/apis/fileDownload/action';
+import { fetchReport } from '../../redux/apis/report/action';
+import AppTable from '../../components/table/AppTable';
+import { useBusiness } from '../../context/businessContext';
+import { ACTIVE_BUSINESSES } from '../../config/businesses';
 
-const businessOptions = [
-  { label: 'AccountSphere (AS)', value: 'AccountSphere (AS)' },
-  { label: 'BillingHub (BH)', value: 'BillingHub (BH)' },
-  { label: 'UnderwritePro (UP)', value: 'UnderwritePro (UP)' },
-];
+const businessOptions = ACTIVE_BUSINESSES.map((business) => ({
+  label: business,
+  value: business,
+}));
 const formatDateTime = (value) => {
   if (!value) return '';
   return dayjs(value).format('MM/DD/YYYY, hh:mm:ss A');
@@ -62,11 +65,26 @@ const outlinedButtonSx = {
   },
 };
 
+const getBusinessOption = (business) => {
+  if (!business) return businessOptions[0];
+
+  return (
+    businessOptions.find((option) => option.value === business) || {
+      label: business,
+      value: business,
+    }
+  );
+};
+
 export default function ReportPage() {
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.report.loading);
+  const { selectedBusiness: activeBusiness } = useBusiness();
   const yesterday = dayjs().subtract(1, 'day');
   const today = dayjs();
-const [selectedBusiness, setSelectedBusiness] = useState(businessOptions[0]);
-const [loading, setLoading] = useState(false);
+const [selectedBusiness, setSelectedBusiness] = useState(() =>
+  getBusinessOption(activeBusiness)
+);
   const [startDate, setStartDate] = useState(yesterday);
   const [endDate, setEndDate] = useState(today);
   const [rows, setRows] = useState([]);
@@ -108,26 +126,14 @@ const [loading, setLoading] = useState(false);
 const handleSearch = async () => {
   if (!validateForm()) return;
 
-  setLoading(true);
-
   try {
-    const response = await fetch(`${config.apiBaseUrl}/api/ingestions/report`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const data = await dispatch(
+      fetchReport({
         business: selectedBusiness.value,
         startDate: startDate.format('YYYY-MM-DD'),
         endDate: endDate.format('YYYY-MM-DD'),
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch report data');
-    }
-
-    const data = await response.json();
+      })
+    );
     console.log('Mapping item:', data);
     const mappedRows = data.map((item, index) => ({
   
@@ -141,19 +147,55 @@ const handleSearch = async () => {
       createdDate: item.createdAt,
       category: item.products.map((cat) => cat.category),
       profile: item.products.map((cat) => cat.profile),
-      downloadUrl: item.outputFileName
-        ? `${config.apiBaseUrl}/api/files/download/${item.outputFileName}`
-        : '',
     }));
 
     setRows(mappedRows);
   } catch (error) {
     console.error(error);
     setRows([]);
-  } finally {
-    setLoading(false);
   }
 };
+
+  useEffect(() => {
+    if (!activeBusiness) return;
+
+    const nextBusiness = getBusinessOption(activeBusiness);
+    setSelectedBusiness(nextBusiness);
+
+    const autoLoadReport = async () => {
+      try {
+        const data = await dispatch(
+          fetchReport({
+            business: nextBusiness.value,
+            startDate: yesterday.format('YYYY-MM-DD'),
+            endDate: today.format('YYYY-MM-DD'),
+          })
+        );
+
+        const mappedRows = data.map((item, index) => ({
+          id: item.txnUuid || index + 1,
+          txnUuid: item.txnUuid,
+          organization: item.organizationName || item.organization || '',
+          requestId: item.requestId || '',
+          business: item.businessName || item.business || '',
+          status: item.status,
+          outputFileName: item.outputFileName || '',
+          createdDate: item.createdAt,
+          category: item.products.map((cat) => cat.category),
+          profile: item.products.map((cat) => cat.profile),
+        }));
+
+        setRows(mappedRows);
+      } catch (error) {
+        console.error(error);
+        setRows([]);
+      }
+    };
+
+    autoLoadReport();
+    // Auto-load report on route entry/business change with selected business and yesterday/today.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBusiness, dispatch]);
 
   const handleDownloadCsv = () => {
     const headers = [
@@ -244,11 +286,14 @@ const handleSearch = async () => {
       flex: 0.8,
       minWidth: 130,
       renderCell: (params) =>
-        params.row.downloadUrl ? (
+        params.row.outputFileName ? (
           <Button
             size="small"
             startIcon={<DownloadIcon />}
-            onClick={() => window.open(params.row.downloadUrl, '_blank')}
+            onClick={() => {
+              const downloadUrl = dispatch(prepareFileDownload(params.row.outputFileName));
+              window.open(downloadUrl, '_blank');
+            }}
             sx={{
               color: '#00856f',
               textTransform: 'none',
@@ -265,7 +310,7 @@ const handleSearch = async () => {
         ),
     },
   ],
-  []
+  [dispatch]
 );
 
   return (
@@ -396,11 +441,13 @@ const handleSearch = async () => {
               </Stack>
             </Stack>
 
-            <Box sx={{ height: 540, width: '100%' }}>
-              <DataGrid
-                rows={rows}
+            <Box sx={{ width: '100%' }}>
+              <AppTable
+                variant="dataGrid"
+                height={540}
+                data={rows}
                 columns={columns}
-                 loading={loading}
+                loading={loading}
                 disableRowSelectionOnClick
                 pageSizeOptions={[5, 10, 25, 50]}
                 initialState={{
@@ -408,27 +455,13 @@ const handleSearch = async () => {
                     paginationModel: { pageSize: 5, page: 0 },
                   },
                 }}
+                emptyTitle="No Matching Records"
+                emptyDescription="No results found"
                 sx={{
                   '& .MuiDataGrid-columnHeaders': {
                     backgroundColor: '#f5f5f5',
                     fontWeight: 700,
                   },
-                }}
-                slots={{
-                  noRowsOverlay: () => (
-                    <Stack height="100%" alignItems="center" justifyContent="center">
-                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                        No Matching Records
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 1 }}
-                      >
-                        No results found
-                      </Typography>
-                    </Stack>
-                  ),
                 }}
               />
             </Box>

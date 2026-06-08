@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import './AnalyticsPage.css';
 import {
   Box,
@@ -28,13 +29,14 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import config from '../../config/config';
+import { fetchAnalytics } from '../../redux/apis/analytics/action';
+import { useBusiness } from '../../context/businessContext';
+import { ACTIVE_BUSINESSES } from '../../config/businesses';
 
-const businessOptions = [
-  { label: 'AccountSphere (AS)', value: 'AccountSphere (AS)' },
-  { label: 'BillingHub (BH)', value: 'BillingHub (BH)' },
-  { label: 'UnderwritePro (UP)', value: 'UnderwritePro (UP)' },
-];
+const businessOptions = ACTIVE_BUSINESSES.map((business) => ({
+  label: business,
+  value: business,
+}));
 
 const getStatusColor = (status) => {
   const s = String(status || '').toUpperCase();
@@ -45,6 +47,17 @@ const getStatusColor = (status) => {
   if (s === 'INGESTED') return '#0e3b34';
 
   return '#5f6f68';
+};
+
+const getBusinessOption = (business) => {
+  if (!business) return businessOptions[0];
+
+  return (
+    businessOptions.find((option) => option.value === business) || {
+      label: business,
+      value: business,
+    }
+  );
 };
 
 function EmptyPanel({ title, height = '240px', children }) {
@@ -155,11 +168,15 @@ function TransactionChart({ title, data }) {
 }
 
 export default function AnalyticsPage() {
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.analytics.loading);
+  const { selectedBusiness: activeBusiness } = useBusiness();
   const yesterday = dayjs().subtract(1, 'day');
   const today = dayjs();
 
- const [selectedBusiness, setSelectedBusiness] = useState(businessOptions[0]);
-const [loading, setLoading] = useState(false);
+ const [selectedBusiness, setSelectedBusiness] = useState(() =>
+   getBusinessOption(activeBusiness)
+ );
   const [startDate, setStartDate] = useState(yesterday);
   const [endDate, setEndDate] = useState(today);
   const [errors, setErrors] = useState({
@@ -204,25 +221,8 @@ if (!selectedBusiness) {
     return !Object.values(nextErrors).some(Boolean);
   };
 
-const callAnalyticsApi = async (endpoint, payload) => {
-  const response = await fetch(`${config.apiBaseUrl}/api/analytics/${endpoint}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    throw new Error(`${endpoint} failed`);
-  }
-
-  return response.json();
-};
 const handleSearch = async () => {
   if (!validateForm()) return;
-
-  setLoading(true);
 
   const payload = {
     business: selectedBusiness.value,
@@ -231,28 +231,13 @@ const handleSearch = async () => {
   };
 
   try {
-    const results = await Promise.allSettled([
-      callAnalyticsApi('status-summary', payload),
-      callAnalyticsApi('product-popularity', payload),
-      callAnalyticsApi('daily-transactions', payload),
-      callAnalyticsApi('weekly-transactions', payload),
-      callAnalyticsApi('monthly-transactions', payload),
-    ]);
-
-    const statusSummary =
-      results[0].status === 'fulfilled' ? results[0].value : [];
-
-    const productPopularity =
-      results[1].status === 'fulfilled' ? results[1].value : [];
-
-    const dailyTransactions =
-      results[2].status === 'fulfilled' ? results[2].value : [];
-
-    const weeklyTransactions =
-      results[3].status === 'fulfilled' ? results[3].value : [];
-
-    const monthlyTransactions =
-      results[4].status === 'fulfilled' ? results[4].value : [];
+    const {
+      dailyTransactions,
+      monthlyTransactions,
+      productPopularity,
+      statusSummary,
+      weeklyTransactions,
+    } = await dispatch(fetchAnalytics(payload));
 
     setStatusData(
       statusSummary.map((item) => ({
@@ -291,16 +276,75 @@ const handleSearch = async () => {
     );
   } catch (error) {
     console.error(error);
-  } finally {
-    setLoading(false);
   }
 };
 
   useEffect(() => {
-    handleSearch();
-    // Run the initial dashboard fetch only once on mount.
+    if (!activeBusiness) return;
+
+    const nextBusiness = getBusinessOption(activeBusiness);
+    setSelectedBusiness(nextBusiness);
+
+    const autoLoadAnalytics = async () => {
+      const payload = {
+        business: nextBusiness.value,
+        startDate: yesterday.format('YYYY-MM-DD'),
+        endDate: today.format('YYYY-MM-DD'),
+      };
+
+      try {
+        const {
+          dailyTransactions,
+          monthlyTransactions,
+          productPopularity,
+          statusSummary,
+          weeklyTransactions,
+        } = await dispatch(fetchAnalytics(payload));
+
+        setStatusData(
+          statusSummary.map((item) => ({
+            name: item.name,
+            value: item.value,
+            color: getStatusColor(item.name),
+          }))
+        );
+
+        setReasonCodeData(
+          productPopularity.map((item) => ({
+            reasonCode: item.name,
+            count: item.value,
+          }))
+        );
+
+        setDailyTxnData(
+          dailyTransactions.map((item) => ({
+            date: item.name,
+            count: item.value,
+          }))
+        );
+
+        setWeeklyTxnData(
+          weeklyTransactions.map((item) => ({
+            date: item.name,
+            count: item.value,
+          }))
+        );
+
+        setMonthlyTxnData(
+          monthlyTransactions.map((item) => ({
+            date: item.name,
+            count: item.value,
+          }))
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    autoLoadAnalytics();
+    // Auto-load analytics on route entry/business change with selected business and yesterday/today.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activeBusiness, dispatch]);
 
   const transactionTitle = useMemo(() => {
     if (selectedTab === 0) return 'Daily Transaction Count Chart';

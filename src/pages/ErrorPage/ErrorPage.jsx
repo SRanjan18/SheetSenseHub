@@ -1,21 +1,26 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../../reusable/apiClient';
+import { clearBrowserManagedAppCookies } from '../../reusable/cookies';
 import './ErrorPage.css';
 
-function clearAllCookies() {
-  document.cookie.split(';').forEach((cookie) => {
-    const eqPos = cookie.indexOf('=');
-    const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
-    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+function clearAppSession() {
+  clearBrowserManagedAppCookies();
+  apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {
+    // The error page should still render even if there is no backend session to clear.
   });
 }
 
 export default function ErrorPage() {
   const navigate = useNavigate();
+  const hasClearedSession = useRef(false);
 
   useEffect(() => {
-    clearAllCookies();
+    if (hasClearedSession.current) return;
+    hasClearedSession.current = true;
+
+    clearAppSession();
   }, []);
 
   return (

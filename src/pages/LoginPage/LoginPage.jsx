@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import LoadingPage from '../../reusable/LoadingPage/LoadingPage';
@@ -6,27 +6,13 @@ import './LoginPage.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const timerRef = useRef(null);
+  const { isAuthenticated, isLoading, startLogin } = useAuth();
 
   useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
-
-  const handleLogin = () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-    timerRef.current = setTimeout(() => {
-      login();
-      navigate('/dashboard');
-    }, 1400);
-  };
+    if (!isLoading && isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   if (isLoading) {
     return <LoadingPage />;
@@ -44,7 +30,7 @@ export default function LoginPage() {
         <div className="auth-screen__login-panel">
           <h2>Welcome To RanjanLabs</h2>
 
-          <button className="auth-screen__login-btn" onClick={handleLogin}>
+          <button className="auth-screen__login-btn" onClick={startLogin}>
             LOG IN
           </button>
         </div>

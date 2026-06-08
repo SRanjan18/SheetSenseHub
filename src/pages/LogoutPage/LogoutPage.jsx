@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -6,15 +6,15 @@ import './LogoutPage.css';
 
 export default function LogoutPage() {
   const navigate = useNavigate();
-  const auth = useAuth();
+  const { logout } = useAuth();
+  const hasLoggedOut = useRef(false);
 
   useEffect(() => {
-    console.log('[Logout] LogoutPage mounted at', window.location.pathname);
-    console.log('[Logout] Calling auth.logout');
-    if (auth?.logout) {
-      auth.logout();
-    }
-  }, [auth]);
+    if (hasLoggedOut.current) return;
+    hasLoggedOut.current = true;
+
+    logout();
+  }, [logout]);
 
   return (
     <Box className="logout-page">

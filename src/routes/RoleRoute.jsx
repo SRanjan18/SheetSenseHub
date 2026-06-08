@@ -2,15 +2,15 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoadingPage from '../reusable/LoadingPage/LoadingPage';
 
-export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, isLoading } = useAuth();
+export default function RoleRoute({ allowed, children }) {
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return <LoadingPage />;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (!allowed) {
+    return <Navigate to="/error" replace />;
   }
 
   return children;

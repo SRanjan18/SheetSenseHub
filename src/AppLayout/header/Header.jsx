@@ -1,28 +1,33 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Button,
-  Menu,
-  MenuItem,
-  Popover,
-  Toolbar,
-  Typography,
-} from '@mui/material';
+import {AppBar,Avatar,Box,Button,Menu,MenuItem,Popover,Toolbar,Typography,} from '@mui/material';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import { useAuth } from '../../context/AuthContext';
 import UserPanel from './UserPanel/UserPanel';
 import './Header.css';
 
-export default function Header({
-  selectedBusiness,
-  businesses,
-  onBusinessSelect,
-}) {
+function getInitials(name = '') {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0]?.toUpperCase())
+    .join('')
+    .slice(0, 2);
+}
+
+function getRoleLabel(user, selectedBusiness) {
+  const businessRole = user?.businessRoles?.find(
+    (item) => item.businessName === selectedBusiness
+  );
+
+  return businessRole?.roleName || businessRole?.roleCode || 'SheetSense Hub User';
+}
+
+export default function Header({ selectedBusiness, businesses, onBusinessSelect }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, canManageUsers } = useAuth();
 
   const [businessAnchorEl, setBusinessAnchorEl] = useState(null);
   const [userAnchorEl, setUserAnchorEl] = useState(null);
@@ -31,34 +36,13 @@ export default function Header({
   const isBusinessMenuOpen = Boolean(businessAnchorEl);
   const isUserPanelOpen = Boolean(userAnchorEl);
   const businessLabel = selectedBusiness || 'Select';
-
-  const handleAboutClick = () => {
-    navigate('/about');
-  };
-
-  const handleDashboardClick = () => {
-    navigate('/dashboard');
-  };
-
-  const handleBusinessMenuOpen = (event) => {
-    setBusinessAnchorEl(event.currentTarget);
-  };
-
-  const handleBusinessMenuClose = () => {
-    setBusinessAnchorEl(null);
-  };
+  const userName = user?.name || user?.email || 'SheetSense User';
+  const userInitials = getInitials(userName) || 'SS';
+  const roleLabel = getRoleLabel(user, selectedBusiness);
 
   const handleBusinessSelect = (business) => {
     onBusinessSelect(business);
-    handleBusinessMenuClose();
-  };
-
-  const handleUserPanelOpen = (event) => {
-    setUserAnchorEl(event.currentTarget);
-  };
-
-  const handleUserPanelClose = () => {
-    setUserAnchorEl(null);
+    setBusinessAnchorEl(null);
   };
 
   return (
@@ -84,7 +68,7 @@ export default function Header({
             className={`shell-link shell-link--nav ${
               location.pathname === '/about' ? 'shell-link--active-tab' : ''
             }`}
-            onClick={handleAboutClick}
+            onClick={() => navigate('/about')}
           >
             About
           </Button>
@@ -93,7 +77,7 @@ export default function Header({
             className={`shell-link shell-link--nav ${
               location.pathname === '/dashboard' ? 'shell-link--active-tab' : ''
             }`}
-            onClick={handleDashboardClick}
+            onClick={() => navigate('/dashboard')}
           >
             Dashboard
           </Button>
@@ -104,7 +88,7 @@ export default function Header({
                 className={`shell-link shell-link--nav ${
                   isBusinessMenuOpen ? 'shell-link--active-tab' : ''
                 }`}
-                onClick={handleBusinessMenuOpen}
+                onClick={(event) => setBusinessAnchorEl(event.currentTarget)}
                 endIcon={<KeyboardArrowDownRoundedIcon />}
               >
                 {businessLabel}
@@ -113,18 +97,10 @@ export default function Header({
               <Menu
                 anchorEl={businessAnchorEl}
                 open={isBusinessMenuOpen}
-                onClose={handleBusinessMenuClose}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left',
-                }}
-                PaperProps={{
-                  className: 'shell-dropdown-paper',
-                }}
+                onClose={() => setBusinessAnchorEl(null)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                slotProps={{ paper: { className: 'shell-dropdown-paper' } }}
               >
                 {businesses.map((business) => (
                   <MenuItem
@@ -149,45 +125,39 @@ export default function Header({
             Contact Us
           </Button>
 
-          <Button
-            className={`shell-link shell-link--nav ${
-              location.pathname === '/user-management' ? 'shell-link--active-tab' : ''
-            }`}
-            onClick={() => navigate('/user-management')}
-          >
-            User Management
-          </Button>
+          {canManageUsers && (
+            <Button
+              className={`shell-link shell-link--nav ${
+                location.pathname === '/user-management' ? 'shell-link--active-tab' : ''
+              }`}
+              onClick={() => navigate('/user-management')}
+            >
+              User Management
+            </Button>
+          )}
 
           <Button
             className="shell-user-trigger"
-            onClick={handleUserPanelOpen}
+            onClick={(event) => setUserAnchorEl(event.currentTarget)}
             endIcon={<KeyboardArrowDownRoundedIcon />}
           >
-            <Avatar className="shell-user-badge">RS</Avatar>
-            <span className="shell-user-trigger__text">Hi, Soumya</span>
+            <Avatar className="shell-user-badge">{userInitials}</Avatar>
+            <span className="shell-user-trigger__text">Hi, {userName.split(' ')[0]}</span>
           </Button>
 
           <Popover
             open={isUserPanelOpen}
             anchorEl={userAnchorEl}
-            onClose={handleUserPanelClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            PaperProps={{
-              className: 'shell-user-popover',
-            }}
+            onClose={() => setUserAnchorEl(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            slotProps={{ paper: { className: 'shell-user-popover' } }}
           >
             <UserPanel
-              userName="Soumya R"
-              role={selectedBusiness || 'SheetSense Hub User'}
-              email="soumya@example.com"
-              onClose={handleUserPanelClose}
+              userName={userName}
+              role={roleLabel}
+              email={user?.email || ''}
+              onClose={() => setUserAnchorEl(null)}
             />
           </Popover>
         </Box>

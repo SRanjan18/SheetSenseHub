@@ -12,24 +12,15 @@ function getInitials(name = '') {
     .slice(0, 2);
 }
 
-function clearAllCookies() {
-  document.cookie.split(';').forEach((cookie) => {
-    const eqPos = cookie.indexOf('=');
-    const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
-    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-  });
-}
-
 export default function UserPanel({
-  userName = 'Soumya R',
-  role = 'Underwriting Support Team',
-  email = 'soumya@example.com',
+  userName = 'SheetSense User',
+  role = 'SheetSense Hub User',
+  email = 'sheetSense Hub User Mail',
   onClose,
 }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    clearAllCookies();
     if (onClose) {
       onClose();
     }

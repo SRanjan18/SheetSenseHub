@@ -10,12 +10,14 @@
     "local": {
       "appName": "SheetSense Hub",
       "apiBaseUrl": "http://localhost:8080",
-      "ssoLoginUrl": "http://localhost:8080/auth/login"
+      "googleAuthUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+      "googleClientId": "812849830902-dkkg9ep0lsj3ud9vonj9fp1dqh6phsir.apps.googleusercontent.com"
     },
     "prod": {
       "appName": "SheetSense Hub",
       "apiBaseUrl": "https://sheetsensehubbackend-1.onrender.com",
-      "ssoLoginUrl": "https://sheetsensehubbackend-1.onrender.com/auth/login"
+      "googleAuthUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+      "googleClientId": "812849830902-dkkg9ep0lsj3ud9vonj9fp1dqh6phsir.apps.googleusercontent.com"
     }
   }
 }

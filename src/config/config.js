@@ -25,13 +25,15 @@ const buildEnvironmentConfig = (environment, environmentConfig) => {
   const apiBaseUrl = withoutTrailingSlash(
     assertRequired('apiBaseUrl', environmentConfig.apiBaseUrl)
   );
-  const ssoLoginUrl = assertRequired('ssoLoginUrl', environmentConfig.ssoLoginUrl);
+  const googleAuthUrl = assertRequired('googleAuthUrl', environmentConfig.googleAuthUrl);
+  const googleClientId = assertRequired('googleClientId', environmentConfig.googleClientId);
 
   return Object.freeze({
     appName,
     environment,
     apiBaseUrl,
-    ssoLoginUrl,
+    googleAuthUrl,
+    googleClientId,
     isProduction: environment === 'prod',
   });
 };

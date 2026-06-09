@@ -13,8 +13,6 @@ export default function EnterInformation({
   setProfile,
   ocChecked,
   setOcChecked,
-  isLtd,
-  setIsLtd,
   fieldErrors,
   clearFieldError,
   validateRequestId,
@@ -26,48 +24,6 @@ export default function EnterInformation({
   showOverlay = false,
   loadingMessage = 'Please wait, your file is being processed',
 }) {
-  if (businessFamily === 'search-group') {
-    return null;
-  }
-
-  if (businessFamily === 'sb') {
-    return (
-      <>
-        <div className="dashboard-form-shell dashboard-form-shell--vo-layout">
-          <div className="dashboard-form-left">
-            <div className="dashboard-inner-card dashboard-inner-card--single">
-              <label className="dashboard-label">
-              Organization <span>*</span>
-              </label>
-              <input
-                className="dashboard-input"
-                type="text"
-                value={organization}
-                onChange={(e) => setOrganization(e.target.value)}
-              />
-
-              <label className="dashboard-checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={isLtd}
-                  onChange={(e) => setIsLtd(e.target.checked)}
-                />
-                <span>Is LTD?</span>
-              </label>
-            </div>
-          </div>
-          <ProductDetailsBox {...productBoxProps} />
-        </div>
-
-        {showOverlay && (
-          <div className="dashboard-processing-overlay" aria-hidden="true">
-            <LoadingPage message={loadingMessage} transparent />
-          </div>
-        )}
-      </>
-    );
-  }
-
   if (businessFamily === 'simple-group') {
     return (
       <>
@@ -180,14 +136,8 @@ export default function EnterInformation({
                   <option value="DEN:BASIC" disabled={usedCategories.has('DEN:BASIC')}>
                     DEN:BASIC
                   </option>
-                  <option value="DEN:CORE" disabled={usedCategories.has('DEN:CORE')}>
-                    DEN:CORE
-                  </option>
                   <option value="DEN:PREMIER" disabled={usedCategories.has('DEN:PREMIER')}>
                     DEN:PREMIER
-                  </option>
-                  <option value="VIS:BASIC" disabled={usedCategories.has('VIS:BASIC')}>
-                    VIS:BASIC
                   </option>
                   <option value="VIS:STANDARD" disabled={usedCategories.has('VIS:STANDARD')}>
                     VIS:STANDARD
@@ -221,7 +171,6 @@ export default function EnterInformation({
                   }}
                 >
                   <option value="">Select</option>
-                  <option value="STANDARD">STANDARD</option>
                   <option value="ADVANCED">ADVANCED</option>
                   <option value="STRICT">STRICT</option>
                 </select>

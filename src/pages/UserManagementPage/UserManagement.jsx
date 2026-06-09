@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -19,195 +19,205 @@ import { DataGrid } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import userManagementBackground from '../../assets/user_management.svg';
-
-const mockApiResponse = [
-  {
-    user_details: {
-      firstName: 'John',
-      lastName: 'Doe',
-      emailId: 'john.doe@mail.com',
-      lastLogin: '06/01/2026 10:15 AM',
-      createdDate: '05/20/2026 09:30 AM',
-      msid: 'MS10001',
-    },
-    project_role_dto: {
-      role: 'ADMIN',
-      project: 'SB',
-    },
-  },
-  {
-    user_details: {
-      firstName: 'Jane',
-      lastName: 'Smith',
-      emailId: 'jane.smith@mail.com',
-      lastLogin: '06/01/2026 11:45 AM',
-      createdDate: '05/18/2026 02:10 PM',
-      msid: 'MS10002',
-    },
-    project_role_dto: {
-      role: 'SUPERVISOR',
-      project: 'UST',
-    },
-  },
-  {
-    user_details: {
-      firstName: 'Alex',
-      lastName: 'Lee',
-      emailId: 'alex.lee@mail.com',
-      lastLogin: '05/31/2026 04:20 PM',
-      createdDate: '05/15/2026 08:00 AM',
-      msid: 'MS10003',
-    },
-    project_role_dto: {
-      role: 'USER',
-      project: 'VO',
-    },
-  },
-  {
-    user_details: {
-      firstName: 'Mary',
-      lastName: 'Johnson',
-      emailId: 'mary.johnson@mail.com',
-      lastLogin: '05/30/2026 01:05 PM',
-      createdDate: '05/11/2026 12:15 PM',
-      msid: 'MS10004',
-    },
-    project_role_dto: {
-      role: 'ADMIN',
-      project: 'OCC',
-    },
-  },
-];
-
-const mapUsers = (data) => {
-  return data.map((item, index) => ({
-    id: index + 1,
-    name: `${item.user_details.firstName} ${item.user_details.lastName}`,
-    email: item.user_details.emailId,
-    lastLogin: item.user_details.lastLogin,
-    createdDate: item.user_details.createdDate,
-    role: item.project_role_dto.role,
-    msid: item.user_details.msid,
-    project: item.project_role_dto.project,
-  }));
-};
+import { apiFetch } from '../../reusable/apiClient';
+import { useBusiness } from '../../context/businessContext';
 
 const emptyForm = {
-  name: '',
+  firstName: '',
+  lastName: '',
   email: '',
-  lastLogin: '',
-  createdDate: '',
-  role: '',
-  msid: '',
-  project: '',
+  businessName: '',
+  roleCode: 'USER',
+};
+
+const formatDate = (value) => {
+  if (!value) return '-';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString();
+};
+
+const mapUserRow = (user) => {
+  const businessRoles = Array.isArray(user.businessRoles) ? user.businessRoles : [];
+  const primaryRole = businessRoles[0] || {};
+
+  return {
+    id: user.userUuid,
+    userUuid: user.userUuid,
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
+    name: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email,
+    email: user.email,
+    businessRoles,
+    businessSummary: businessRoles.map((role) => role.businessName).filter(Boolean).join(', ') || '-',
+    roleSummary: businessRoles
+      .map((role) => role.roleName || role.roleCode)
+      .filter(Boolean)
+      .join(', ') || '-',
+    businessName: primaryRole.businessName || '',
+    roleCode: primaryRole.roleCode || 'USER',
+    createdDate: formatDate(user.createdAt),
+    updatedDate: formatDate(user.updatedAt),
+  };
 };
 
 export default function UserManagement() {
-  const [rows, setRows] = useState(mapUsers(mockApiResponse));
-  const [searchText, setSearchText] = useState('');
+  const roleOptions = ['ADMIN', 'ANALYST', 'USER'];
+  const { selectedBusiness } = useBusiness();
 
+  const [rows, setRows] = useState([]);
+  const [searchText, setSearchText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
-
   const [openFormDialog, setOpenFormDialog] = useState(false);
   const [operation, setOperation] = useState('Add');
   const [formValues, setFormValues] = useState(emptyForm);
-
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const selectedBusinessQuery = selectedBusiness ? `?business=${encodeURIComponent(selectedBusiness)}` : '';
+
+  const loadData = async () => {
+    if (!selectedBusiness) {
+      setRows([]);
+      setErrorMessage('Please select a business first.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      const usersResponse = await apiFetch(`/api/user-management${selectedBusinessQuery}`);
+      setRows((usersResponse || []).map(mapUserRow));
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Unable to load users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBusiness]);
 
   const filteredRows = useMemo(() => {
     const query = searchText.trim().toLowerCase();
     if (!query) return rows;
 
-    return rows.filter((row) => {
-      return (
-        row.name.toLowerCase().includes(query) ||
-        row.email.toLowerCase().includes(query) ||
-        row.role.toLowerCase().includes(query) ||
-        row.project.toLowerCase().includes(query)
-      );
-    });
+    return rows.filter((row) =>
+      [row.name, row.email, row.roleSummary, row.businessSummary]
+        .some((value) => String(value || '').toLowerCase().includes(query))
+    );
   }, [rows, searchText]);
+
+  const updateFormValue = (field, value) => {
+    setFormValues((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleOpenAdd = () => {
     setOperation('Add');
-    setFormValues(emptyForm);
+    setSelectedRow(null);
+    setFormValues({
+      ...emptyForm,
+      businessName: selectedBusiness || '',
+      roleCode: roleOptions.includes('USER') ? 'USER' : roleOptions[0],
+    });
     setOpenFormDialog(true);
   };
 
   const handleOpenEdit = () => {
     if (!selectedRow) return;
+
     setOperation('Update');
     setFormValues({
-      name: selectedRow.name,
+      firstName: selectedRow.firstName,
+      lastName: selectedRow.lastName,
       email: selectedRow.email,
-      lastLogin: selectedRow.lastLogin,
-      createdDate: selectedRow.createdDate,
-      role: selectedRow.role,
-      msid: selectedRow.msid,
-      project: selectedRow.project,
+      businessName: selectedRow.businessName || selectedBusiness || '',
+      roleCode: roleOptions.includes(selectedRow.roleCode) ? selectedRow.roleCode : roleOptions[0],
     });
     setOpenFormDialog(true);
     setMenuAnchor(null);
   };
 
-  const handleSaveUser = () => {
-    if (operation === 'Add') {
-      const newRow = {
-        id: Date.now(),
-        ...formValues,
-      };
-      setRows((prev) => [newRow, ...prev]);
-    } else {
-      setRows((prev) =>
-        prev.map((row) =>
-          row.id === selectedRow.id ? { ...row, ...formValues } : row
-        )
-      );
-    }
-    setOpenFormDialog(false);
+  const validateForm = () => {
+    if (!formValues.firstName.trim()) return 'First name is required';
+    if (!formValues.email.trim()) return 'Email is required';
+    if (!formValues.businessName) return 'Business is required';
+    if (!formValues.roleCode) return 'Role is required';
+    return '';
   };
 
-  const handleDeleteUser = () => {
+  const buildRequestBody = () => {
+    const selectedBusinessRole = {
+      businessName: formValues.businessName,
+      roleCode: formValues.roleCode,
+    };
+
+    return {
+      firstName: formValues.firstName.trim(),
+      lastName: formValues.lastName.trim(),
+      email: formValues.email.trim(),
+      active: true,
+      businessRoles: [selectedBusinessRole],
+    };
+  };
+
+  const handleSaveUser = async () => {
+    const validationMessage = validateForm();
+    if (validationMessage) {
+      setErrorMessage(validationMessage);
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      const body = JSON.stringify(buildRequestBody());
+      if (operation === 'Add') {
+        await apiFetch(`/api/user-management${selectedBusinessQuery}`, { method: 'POST', body });
+      } else {
+        await apiFetch(`/api/user-management/${selectedRow.userUuid}${selectedBusinessQuery}`, { method: 'PUT', body });
+      }
+
+      setOpenFormDialog(false);
+      await loadData();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Unable to save user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
     if (!selectedRow) return;
-    setRows((prev) => prev.filter((row) => row.id !== selectedRow.id));
-    setOpenDeleteDialog(false);
-    setMenuAnchor(null);
+
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      await apiFetch(`/api/user-management/${selectedRow.userUuid}${selectedBusinessQuery}`, { method: 'DELETE' });
+      setOpenDeleteDialog(false);
+      setMenuAnchor(null);
+      await loadData();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Unable to delete user');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns = [
-    {
-      field: 'name',
-      headerName: 'Name',
-      flex: 1.2,
-      minWidth: 180,
-    },
-    {
-      field: 'email',
-      headerName: 'Email',
-      flex: 1.5,
-      minWidth: 220,
-    },
-    {
-      field: 'lastLogin',
-      headerName: 'Last Login',
-      flex: 1.2,
-      minWidth: 180,
-    },
-    {
-      field: 'createdDate',
-      headerName: 'Created Date',
-      flex: 1.2,
-      minWidth: 180,
-    },
-    {
-      field: 'role',
-      headerName: 'Role',
-      flex: 0.8,
-      minWidth: 120,
-    },
+    { field: 'name', headerName: 'Name', flex: 1.2, minWidth: 180 },
+    { field: 'email', headerName: 'Email', flex: 1.5, minWidth: 220 },
+    { field: 'businessSummary', headerName: 'Business Access', flex: 1.5, minWidth: 220 },
+    { field: 'roleSummary', headerName: 'Role', flex: 1, minWidth: 140 },
+    { field: 'createdDate', headerName: 'Created Date', flex: 1.2, minWidth: 180 },
     {
       field: 'actions',
       headerName: '',
@@ -280,12 +290,7 @@ export default function UserManagement() {
       </Box>
 
       <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Stack
-          direction={{ xs: 'column', md: 'row' }}
-          justifyContent="space-between"
-          spacing={2}
-          sx={{ mb: 2 }}
-        >
+        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2} sx={{ mb: 2 }}>
           <TextField
             placeholder="Search users..."
             value={searchText}
@@ -297,6 +302,7 @@ export default function UserManagement() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpenAdd}
+            disabled={loading || !selectedBusiness}
             sx={{
               background: 'linear-gradient(135deg, #00856f 0%, #006c5b 100%)',
               border: '1px solid rgba(183, 227, 95, 0.42)',
@@ -313,6 +319,12 @@ export default function UserManagement() {
           </Button>
         </Stack>
 
+        {errorMessage && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {errorMessage}
+          </Typography>
+        )}
+
         <Paper
           sx={{
             width: '100%',
@@ -327,13 +339,10 @@ export default function UserManagement() {
             autoHeight
             rows={filteredRows}
             columns={columns}
+            loading={loading}
             disableRowSelectionOnClick
             pageSizeOptions={[5, 10, 25]}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 5, page: 0 },
-              },
-            }}
+            initialState={{ pagination: { paginationModel: { pageSize: 5, page: 0 } } }}
             sx={{
               border: 0,
               '& .MuiDataGrid-columnHeaders': {
@@ -353,115 +362,88 @@ export default function UserManagement() {
         </Paper>
       </Container>
 
-     <Menu
-  anchorEl={menuAnchor}
-  open={Boolean(menuAnchor)}
-  onClose={() => setMenuAnchor(null)}
->
-  <MenuItem onClick={handleOpenEdit}>
-    <EditOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
-    Edit
-  </MenuItem>
-  <MenuItem
-    onClick={() => {
-      setOpenDeleteDialog(true);
-      setMenuAnchor(null);
-    }}
-  >
-    <DeleteOutlineOutlinedIcon
-      fontSize="small"
-      sx={{ mr: 1, color: 'error.main' }}
-    />
-    Delete
-  </MenuItem>
-</Menu>
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+        <MenuItem onClick={handleOpenEdit}>
+          <EditOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
+          Edit
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setOpenDeleteDialog(true);
+            setMenuAnchor(null);
+          }}
+        >
+          <DeleteOutlineOutlinedIcon fontSize="small" sx={{ mr: 1, color: 'error.main' }} />
+          Delete
+        </MenuItem>
+      </Menu>
 
-      <Dialog
-        open={openFormDialog}
-        onClose={() => setOpenFormDialog(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>{operation} User</DialogTitle>
+      <Dialog open={openFormDialog} onClose={() => setOpenFormDialog(false)} fullWidth maxWidth="sm">
+        <DialogTitle>{operation} User Access</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              label="Name"
-              value={formValues.name}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, name: e.target.value }))
-              }
+              label="First Name"
+              value={formValues.firstName}
+              onChange={(e) => updateFormValue('firstName', e.target.value)}
+              fullWidth
+              required
+            />
+            <TextField
+              label="Last Name"
+              value={formValues.lastName}
+              onChange={(e) => updateFormValue('lastName', e.target.value)}
               fullWidth
             />
             <TextField
               label="Email"
               value={formValues.email}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, email: e.target.value }))
-              }
+              onChange={(e) => updateFormValue('email', e.target.value)}
               fullWidth
+              required
             />
             <TextField
-              label="Last Login"
-              value={formValues.lastLogin}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, lastLogin: e.target.value }))
-              }
+              label="Business"
+              value={formValues.businessName}
               fullWidth
+              required
+              disabled
+              helperText="User access will be managed only for the currently selected business."
             />
             <TextField
-              label="Created Date"
-              value={formValues.createdDate}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, createdDate: e.target.value }))
-              }
-              fullWidth
-            />
-            <TextField
+              select
               label="Role"
-              value={formValues.role}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, role: e.target.value }))
-              }
+              value={formValues.roleCode}
+              onChange={(e) => updateFormValue('roleCode', e.target.value)}
               fullWidth
-            />
-            <TextField
-              label="MS ID"
-              value={formValues.msid}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, msid: e.target.value }))
-              }
-              fullWidth
-            />
-            <TextField
-              label="Project"
-              value={formValues.project}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, project: e.target.value }))
-              }
-              fullWidth
-            />
+              required
+            >
+              {roleOptions.map((role) => (
+                <MenuItem key={role} value={role}>
+                  {role}
+                </MenuItem>
+              ))}
+            </TextField>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenFormDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSaveUser}>
+          <Button variant="contained" onClick={handleSaveUser} disabled={loading}>
             Save
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
         <DialogTitle>Confirmation Required!</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete?</Typography>
+          <Typography>
+            Are you sure you want to delete {selectedRow?.name || 'this user'}?
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDeleteDialog(false)}>No</Button>
-          <Button color="error" variant="contained" onClick={handleDeleteUser}>
+          <Button color="error" variant="contained" onClick={handleDeleteUser} disabled={loading}>
             Yes
           </Button>
         </DialogActions>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {Box,Button,Chip,Container,Paper,Stack,TextField,Typography,Autocomplete,} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -12,12 +12,8 @@ import { prepareFileDownload } from '../../redux/apis/fileDownload/action';
 import { fetchReport } from '../../redux/apis/report/action';
 import AppTable from '../../components/table/AppTable';
 import { useBusiness } from '../../context/businessContext';
-import { ACTIVE_BUSINESSES } from '../../config/businesses';
+import { useAuth } from '../../context/AuthContext';
 
-const businessOptions = ACTIVE_BUSINESSES.map((business) => ({
-  label: business,
-  value: business,
-}));
 const formatDateTime = (value) => {
   if (!value) return '';
   return dayjs(value).format('MM/DD/YYYY, hh:mm:ss A');
@@ -65,26 +61,30 @@ const outlinedButtonSx = {
   },
 };
 
-const getBusinessOption = (business) => {
-  if (!business) return businessOptions[0];
-
-  return (
-    businessOptions.find((option) => option.value === business) || {
-      label: business,
-      value: business,
-    }
-  );
-};
 
 export default function ReportPage() {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.report.loading);
-  const { selectedBusiness: activeBusiness } = useBusiness();
+  const { user } = useAuth();
+  const { selectedBusiness: activeBusiness, setSelectedBusiness: setActiveBusiness } = useBusiness();
+  const businessOptions = useMemo(
+    () => Array.from(new Set((user?.businessRoles || []).map((item) => item.businessName).filter(Boolean)))
+      .map((business) => ({ label: business, value: business })),
+    [user]
+  );
+  const getBusinessOption = useCallback((business) => {
+    if (!business) return businessOptions[0] || null;
+
+    return (
+      businessOptions.find((option) => option.value === business) || {
+        label: business,
+        value: business,
+      }
+    );
+  }, [businessOptions]);
   const yesterday = dayjs().subtract(1, 'day');
   const today = dayjs();
-const [selectedBusiness, setSelectedBusiness] = useState(() =>
-  getBusinessOption(activeBusiness)
-);
+const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [startDate, setStartDate] = useState(yesterday);
   const [endDate, setEndDate] = useState(today);
   const [rows, setRows] = useState([]);
@@ -157,7 +157,7 @@ const handleSearch = async () => {
 };
 
   useEffect(() => {
-    if (!activeBusiness) return;
+    if (!activeBusiness || !businessOptions.length) return;
 
     const nextBusiness = getBusinessOption(activeBusiness);
     setSelectedBusiness(nextBusiness);
@@ -195,7 +195,7 @@ const handleSearch = async () => {
     autoLoadReport();
     // Auto-load report on route entry/business change with selected business and yesterday/today.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeBusiness, dispatch]);
+  }, [activeBusiness, businessOptions.length, dispatch, getBusinessOption]);
 
   const handleDownloadCsv = () => {
     const headers = [
@@ -349,8 +349,11 @@ const handleSearch = async () => {
                 <Autocomplete
   options={businessOptions}
   value={selectedBusiness}
-  onChange={(_, value) => setSelectedBusiness(value)}
-  getOptionLabel={(option) => option.label}
+  onChange={(_, value) => {
+    setSelectedBusiness(value);
+    if (value?.value) setActiveBusiness(value.value);
+  }}
+  getOptionLabel={(option) => option?.label || ''}
   renderInput={(params) => (
     <TextField
       {...params}

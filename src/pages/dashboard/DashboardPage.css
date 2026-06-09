@@ -599,10 +599,6 @@
   text-align: center;
 }
 
-.dashboard-search-group-space {
-  min-height: 220px;
-}
-
 .dashboard-actions {
   display: flex;
   justify-content: flex-end;
@@ -826,57 +822,53 @@
 .dashboard-page--compact .dashboard-actions {
   margin-top: 12px;
 }
-.dashboard-page--sb .dashboard-form-shell {
+.dashboard-page--simple .dashboard-form-shell {
   grid-template-columns: 1fr 1fr;
   align-items: start;
 }
 
-.dashboard-page--sb .dashboard-form-left,
-.dashboard-page--sb .dashboard-form-right {
+.dashboard-page--simple .dashboard-form-left,
+.dashboard-page--simple .dashboard-form-right {
   width: 100%;
 }
 
-.dashboard-page--sb .dashboard-inner-card {
+.dashboard-page--simple .dashboard-inner-card {
   max-width: none;
   width: 100%;
 }
-/* Compact the left form only for SB / LB / MUW */
-.dashboard-page--sb .dashboard-form-shell--vo-layout {
+/* Compact the organization-only MediUnderwrite form. */
+.dashboard-page--simple .dashboard-form-shell--vo-layout {
   min-height: auto;
   align-items: start;
 }
 
-.dashboard-page--sb .dashboard-inner-card {
+.dashboard-page--simple .dashboard-inner-card {
   min-height: auto;
   padding-top: 28px;
   padding-bottom: 28px;
 }
 
-.dashboard-page--sb .dashboard-form-left {
+.dashboard-page--simple .dashboard-form-left {
   align-items: start;
 }
 
-.dashboard-page--sb .dashboard-label {
+.dashboard-page--simple .dashboard-label {
   margin-bottom: 10px;
 }
 
-.dashboard-page--sb .dashboard-input {
+.dashboard-page--simple .dashboard-input {
   margin-bottom: 0;
 }
 
-.dashboard-page--sb .dashboard-checkbox-row {
-  margin-top: 18px;
-}
-
 /* Keep the right panel visually balanced without forcing huge left empty area */
-.dashboard-page--sb .dashboard-product-box {
+.dashboard-page--simple .dashboard-product-box {
   min-height: auto;
   max-width: none;
   width: 100%;
 }
 
 /* Optional: tighter shell spacing for these use cases only */
-.dashboard-page--sb .dashboard-form-shell {
+.dashboard-page--simple .dashboard-form-shell {
   padding-top: 18px;
   padding-bottom: 18px;
 }

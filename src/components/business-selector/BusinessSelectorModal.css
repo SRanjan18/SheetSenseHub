@@ -44,3 +44,13 @@
   color: #17211d;
   font-weight: 500;
 }
+.usecase-dialog-option {
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: background-color 0.15s ease;
+}
+
+.usecase-dialog-option:hover {
+  background: rgba(0, 133, 111, 0.08);
+}

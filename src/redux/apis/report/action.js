@@ -19,6 +19,7 @@ export const fetchReport = (payload) => async (dispatch) => {
   try {
     const response = await fetch(`${config.apiBaseUrl}/api/ingestions/report`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

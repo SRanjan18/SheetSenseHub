@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useBusiness } from '../../context/businessContext';
@@ -110,15 +110,15 @@ export default function DashboardPage() {
   const [category, setCategory] = useState('');
   const [profile, setProfile] = useState('');
   const [ocChecked, setOcChecked] = useState(false);
-  const [isLtd, setIsLtd] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [voProducts, setVoProducts] = useState([]);
   const [fieldErrors, setFieldErrors] = useState({});
+  const processingSectionRef = useRef(null);
 
   const cards = getCardsForFamily(businessFamily);
-  const showStepper = businessFamily !== 'search-group';
-  const sectionTitle = businessFamily === 'search-group' ? '' : 'Data Processing';
+  const showStepper = Boolean(businessFamily);
+  const sectionTitle = 'Data Processing';
 
   const isOcEnabled =
     businessFamily === 'vo-group' &&
@@ -138,7 +138,7 @@ export default function DashboardPage() {
   // CHANGED: keep product count aligned with the active use case family
   const productCount = useMemo(() => {
     if (businessFamily === 'vo-group') return String(voProducts.length);
-    if (businessFamily === 'sb' || businessFamily === 'simple-group') return '1';
+    if (businessFamily === 'simple-group') return '1';
     return '0';
   }, [businessFamily, voProducts.length]);
 
@@ -153,7 +153,6 @@ export default function DashboardPage() {
   setCategory('');
   setProfile('');
   setOcChecked(false);
-  setIsLtd(false);
   setSelectedFile(null);
   setCurrentStep(0);
   setVoProducts([]);
@@ -189,35 +188,22 @@ const validateRequestId = (value) => {
   return true;
 };
 const buildIngestionPayload = () => {
-  const normalizedRequestId = requestId.trim();
-
   const payload = {
     business: selectedBusiness || '',
     organization: organization.trim(),
-    request_id: normalizedRequestId,
-    orthodontic_coverage: Boolean(ocChecked),
     file_name: selectedFile?.name || '',
   };
 
-  if (selectedBusiness === 'BillingHub (BH)') {
-    payload.is_ltd = Boolean(isLtd);
+  if (businessFamily === 'simple-group') {
     return payload;
   }
 
-  payload.products =
-    businessFamily === 'vo-group'
-      ? voProducts.map((product) => ({
-          category: product.category,
-          profile: product.profile,
-        }))
-      : category && profile
-      ? [
-          {
-            category,
-            profile,
-          },
-        ]
-      : [];
+  payload.request_id = requestId.trim();
+  payload.orthodontic_coverage = Boolean(ocChecked);
+  payload.products = voProducts.map((product) => ({
+    category: product.category,
+    profile: product.profile,
+  }));
 
   return payload;
 };
@@ -241,6 +227,9 @@ const submitIngestion = async () => {
     }
 
     setCurrentStep(0);
+    window.requestAnimationFrame(() => {
+      processingSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
 
 const handleCancel = () => {
@@ -249,7 +238,6 @@ const handleCancel = () => {
   setCategory('');
   setProfile('');
   setOcChecked(false);
-  setIsLtd(false);
   setSelectedFile(null);
   setCurrentStep(0);
   setVoProducts([]);
@@ -315,7 +303,6 @@ const handleCancel = () => {
       },
     ]);
 
-    setRequestId('');
     setCategory('');
     setProfile('');
     setFieldErrors((prev) => ({
@@ -331,10 +318,6 @@ const handleCancel = () => {
   };
 
   const isStepOneValid = () => {
-    if (businessFamily === 'sb') {
-      return organization.trim().length > 0;
-    }
-
     if (businessFamily === 'vo-group') {
       return organization.trim().length > 0 && voProducts.length > 0;
     }
@@ -387,11 +370,6 @@ const isNextDisabled =
     : true;
 
   const renderStepContent = () => {
-        // CHANGED: for VAQ/SHAQ show only the hero cards, not the lower empty search area
-    if (businessFamily === 'search-group') {
-      return null;
-    }
-
     if (currentStep === 0) {
       return (
         <EnterInformation
@@ -406,8 +384,6 @@ const isNextDisabled =
           setProfile={setProfile}
           ocChecked={ocChecked}
           setOcChecked={setOcChecked}
-          isLtd={isLtd}
-          setIsLtd={setIsLtd}
           fieldErrors={fieldErrors}
           clearFieldError={clearFieldError}
           validateRequestId={validateRequestId}
@@ -446,8 +422,6 @@ const isNextDisabled =
         setProfile={setProfile}
         ocChecked={ocChecked}
         setOcChecked={setOcChecked}
-        isLtd={isLtd}
-        setIsLtd={setIsLtd}
         fieldErrors={fieldErrors}
         clearFieldError={clearFieldError}
         validateRequestId={validateRequestId}
@@ -506,8 +480,8 @@ const isNextDisabled =
   return (
   <div
   className={`dashboard-page ${
-    businessFamily === 'sb' || businessFamily === 'simple-group'
-      ? 'dashboard-page--sb'
+    businessFamily === 'simple-group'
+      ? 'dashboard-page--simple'
       : ''
   } ${!hasBusiness ? 'dashboard-page--preselect' : ''}`}
 >
@@ -548,8 +522,8 @@ const isNextDisabled =
       </section>
 
           {/* CHANGED: hide the lower dashboard content completely for search use cases */}
-      {hasBusiness && businessFamily !== 'search-group' && (
-        <section className="dashboard-content">
+      {hasBusiness && businessFamily && (
+        <section ref={processingSectionRef} className="dashboard-content">
           <h2>{sectionTitle}</h2>
 
           {showStepper && (

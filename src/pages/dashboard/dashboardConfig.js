@@ -1,7 +1,5 @@
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
-import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
-import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStatsOutlined';
 import { BUSINESS_FAMILY_MAP } from '../../config/businesses';
 
@@ -33,36 +31,13 @@ const DEFAULT_CARDS = [
 ];
 
 const CARD_SETS = {
-  'search-group': [
-    {
-      key: 'search',
-      title: 'Search',
-      icon: ManageSearchOutlinedIcon,
-      description: 'Click on below button to search processed category file.',
-      buttonText: 'Search Record',
-    },
-    DEFAULT_CARDS[1],
-    DEFAULT_CARDS[2],
-  ],
-  sb: [
-    DEFAULT_CARDS[0],
-    {
-      key: 'occ',
-      title: 'OCC',
-      icon: FolderSpecialOutlinedIcon,
-      description: 'Click on below button to add/edit OCC Details',
-      buttonText: 'Library Add/Edit',
-    },
-    DEFAULT_CARDS[1],
-    DEFAULT_CARDS[2],
-  ],
+  'vo-group': DEFAULT_CARDS,
+  'simple-group': DEFAULT_CARDS,
 };
 
 const CARD_ACTIONS = {
   report: { type: 'navigate', value: '/report' },
   analytics: { type: 'navigate', value: '/analytics' },
-  occ: { type: 'alert', value: 'OCC page will be added next.' },
-  search: { type: 'alert', value: 'Search page will be added next.' },
 };
 
 export function getBusinessFamily(selectedBusiness) {

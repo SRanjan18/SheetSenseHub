@@ -12,7 +12,6 @@ import './BusinessSelectorModal.css';
 export default function BusinessSelectorModal({
   isOpen,
   businesses,
-  selectedBusiness,
   onSelect,
 }) {
   return (
@@ -20,11 +19,10 @@ export default function BusinessSelectorModal({
       open={isOpen}
       fullWidth
       maxWidth="sm"
-      disableEscapeKeyDown
-      PaperProps={{
-        className: 'usecase-dialog-paper',
-      }}
       slotProps={{
+        paper: {
+          className: 'usecase-dialog-paper',
+        },
         backdrop: {
           className: 'usecase-dialog-backdrop',
         },
@@ -37,16 +35,20 @@ export default function BusinessSelectorModal({
 
         <RadioGroup
           name="business"
-          value={selectedBusiness}
+          value=""
           className="usecase-dialog-list"
+          onChange={(_, business) => onSelect(business)}
         >
           {businesses.map((business) => (
-            <Box key={business} className="usecase-dialog-option">
+            <Box
+              key={business}
+              className="usecase-dialog-option"
+              onClick={() => onSelect(business)}
+            >
               <FormControlLabel
                 value={business}
                 control={
                   <Radio
-                    onChange={() => onSelect(business)}
                     sx={{
                       color: '#8a8a8a',
                       '&.Mui-checked': {

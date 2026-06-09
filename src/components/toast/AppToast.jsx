@@ -5,19 +5,22 @@ import { hideToast } from '../../store/toast';
 export default function AppToast() {
   const dispatch = useDispatch();
   const { open, message, severity } = useSelector((state) => state.toast);
+  const isInProgress = severity === 'info';
+  const autoHideDuration = isInProgress ? null : 2000;
+  const handleClose = isInProgress ? undefined : () => dispatch(hideToast());
 
   return (
     <Snackbar
       open={open}
-      autoHideDuration={4500}
-      onClose={() => dispatch(hideToast())}
+      autoHideDuration={autoHideDuration}
+      onClose={handleClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      sx={{ mt: 8 }}
+      sx={{ mt: 2, zIndex: 12000 }}
     >
       <Alert
         variant="filled"
         severity={severity}
-        onClose={() => dispatch(hideToast())}
+        onClose={handleClose}
         sx={{
           minWidth: 320,
           borderRadius: 2,

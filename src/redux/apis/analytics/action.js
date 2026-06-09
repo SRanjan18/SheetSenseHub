@@ -22,6 +22,7 @@ export const resetAnalytics = () => ({
 const callAnalyticsApi = async (endpoint, payload) => {
   const response = await fetch(`${config.apiBaseUrl}/api/analytics/${endpoint}`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },

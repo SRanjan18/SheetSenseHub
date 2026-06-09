@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import LoadingPage from '../../reusable/LoadingPage/LoadingPage';
 import { useDispatch, useSelector } from 'react-redux';
 import './AnalyticsPage.css';
 import {
@@ -31,12 +32,8 @@ import {
 } from 'recharts';
 import { fetchAnalytics } from '../../redux/apis/analytics/action';
 import { useBusiness } from '../../context/businessContext';
-import { ACTIVE_BUSINESSES } from '../../config/businesses';
+import { useAuth } from '../../context/AuthContext';
 
-const businessOptions = ACTIVE_BUSINESSES.map((business) => ({
-  label: business,
-  value: business,
-}));
 
 const getStatusColor = (status) => {
   const s = String(status || '').toUpperCase();
@@ -49,16 +46,6 @@ const getStatusColor = (status) => {
   return '#5f6f68';
 };
 
-const getBusinessOption = (business) => {
-  if (!business) return businessOptions[0];
-
-  return (
-    businessOptions.find((option) => option.value === business) || {
-      label: business,
-      value: business,
-    }
-  );
-};
 
 function EmptyPanel({ title, height = '240px', children }) {
   return (
@@ -79,8 +66,8 @@ function StatusChart({ data }) {
   }
 
   return (
-    <div style={{ width: '100%', height: 320 }}>
-      <ResponsiveContainer>
+    <div style={{ width: '100%', minWidth: 0, height: 320 }}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
         <PieChart>
           <Pie
             data={data}
@@ -115,8 +102,8 @@ function ProductPopularityChart({ data }) {
   }
 
   return (
-    <div style={{ width: '100%', height: 620 }}>
-      <ResponsiveContainer>
+    <div style={{ width: '100%', minWidth: 0, height: 620 }}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
         <BarChart
           data={data}
           layout="vertical"
@@ -144,8 +131,8 @@ function TransactionChart({ title, data }) {
   }
 
   return (
-    <div style={{ width: '100%', height: 280 }}>
-      <ResponsiveContainer>
+    <div style={{ width: '100%', minWidth: 0, height: 280 }}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
         <LineChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" label={{ value: 'Date', position: 'insideBottom', offset: -5 }} />
@@ -170,13 +157,27 @@ function TransactionChart({ title, data }) {
 export default function AnalyticsPage() {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.analytics.loading);
-  const { selectedBusiness: activeBusiness } = useBusiness();
+  const { user } = useAuth();
+  const { selectedBusiness: activeBusiness, setSelectedBusiness: setActiveBusiness } = useBusiness();
+  const businessOptions = useMemo(
+    () => Array.from(new Set((user?.businessRoles || []).map((item) => item.businessName).filter(Boolean)))
+      .map((business) => ({ label: business, value: business })),
+    [user]
+  );
+  const getBusinessOption = useCallback((business) => {
+    if (!business) return businessOptions[0] || null;
+
+    return (
+      businessOptions.find((option) => option.value === business) || {
+        label: business,
+        value: business,
+      }
+    );
+  }, [businessOptions]);
   const yesterday = dayjs().subtract(1, 'day');
   const today = dayjs();
 
- const [selectedBusiness, setSelectedBusiness] = useState(() =>
-   getBusinessOption(activeBusiness)
- );
+ const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [startDate, setStartDate] = useState(yesterday);
   const [endDate, setEndDate] = useState(today);
   const [errors, setErrors] = useState({
@@ -193,6 +194,7 @@ export default function AnalyticsPage() {
   const [dailyTxnData, setDailyTxnData] = useState([]);
   const [weeklyTxnData, setWeeklyTxnData] = useState([]);
   const [monthlyTxnData, setMonthlyTxnData] = useState([]);
+  const hasAutoLoadedRef = useRef(false);
 
   const validateForm = () => {
     const nextErrors = {
@@ -280,7 +282,8 @@ const handleSearch = async () => {
 };
 
   useEffect(() => {
-    if (!activeBusiness) return;
+    if (!activeBusiness || !businessOptions.length || hasAutoLoadedRef.current) return;
+    hasAutoLoadedRef.current = true;
 
     const nextBusiness = getBusinessOption(activeBusiness);
     setSelectedBusiness(nextBusiness);
@@ -342,9 +345,9 @@ const handleSearch = async () => {
     };
 
     autoLoadAnalytics();
-    // Auto-load analytics on route entry/business change with selected business and yesterday/today.
+    // Auto-load analytics once when entering the route; later requests run only from Search.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeBusiness, dispatch]);
+  }, [activeBusiness, businessOptions.length, dispatch, getBusinessOption]);
 
   const transactionTitle = useMemo(() => {
     if (selectedTab === 0) return 'Daily Transaction Count Chart';
@@ -358,6 +361,10 @@ const handleSearch = async () => {
     return monthlyTxnData;
   }, [selectedTab, dailyTxnData, weeklyTxnData, monthlyTxnData]);
 
+  if (!selectedBusiness || loading) {
+    return <LoadingPage message="Please wait, analytics data is being loaded" overlay />;
+  }
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className="analytics-page">
@@ -366,8 +373,11 @@ const handleSearch = async () => {
             <Autocomplete
   options={businessOptions}
   value={selectedBusiness}
-  onChange={(_, value) => setSelectedBusiness(value)}
-  getOptionLabel={(option) => option.label}
+  onChange={(_, value) => {
+    setSelectedBusiness(value);
+    if (value?.value) setActiveBusiness(value.value);
+  }}
+  getOptionLabel={(option) => option?.label || ''}
   renderInput={(params) => (
     <TextField
       {...params}

@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {AppBar,Avatar,Box,Button,Menu,MenuItem,Popover,Toolbar,Typography,} from '@mui/material';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import { useAuth } from '../../context/AuthContext';
 import UserPanel from './UserPanel/UserPanel';
+import ranjanLabsLogo from '../../assets/ranjanlabs-logo.png';
 import './Header.css';
 
 function getInitials(name = '') {
@@ -50,10 +50,7 @@ export default function Header({ selectedBusiness, businesses, onBusinessSelect 
       <Toolbar className="shell-header__toolbar">
         <Box className="shell-header__left">
           <Box className="shell-logo-container">
-            <AutoAwesomeRoundedIcon className="shell-logo-icon" />
-            <Typography component="div" className="shell-logo">
-              RanjanLabs
-            </Typography>
+            <img src={ranjanLabsLogo} alt="RanjanLabs" className="shell-logo-image" />
           </Box>
 
           <Box className="shell-divider" />

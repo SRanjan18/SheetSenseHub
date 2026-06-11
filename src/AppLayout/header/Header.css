@@ -21,19 +21,14 @@
 .shell-logo-container {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
-.shell-logo-icon {
-  color: #0e3b34;
-  font-size: 24px !important;
-}
-
-.shell-logo {
-  color: #0e3b34;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  line-height: 1.05 !important;
+.shell-logo-image {
+  width: 118px;
+  height: 34px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 6px;
 }
 
 .shell-divider {

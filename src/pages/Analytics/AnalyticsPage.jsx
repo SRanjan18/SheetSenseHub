@@ -90,7 +90,11 @@ function StatusChart({ data }) {
   );
 }
 
-function ProductPopularityChart({ data }) {
+function ProductPopularityChart({ data, notApplicable = false }) {
+  if (notApplicable) {
+    return <EmptyState text="Product popularity is not applicable for MediUnderwrite." />;
+  }
+
   if (!data || !data.length) {
     return (
       <div className="analytics-chart-placeholder">
@@ -439,7 +443,10 @@ const handleSearch = async () => {
         </EmptyPanel>
 
           <EmptyPanel title="Product Popularity Chart" height="700px">
-          <ProductPopularityChart data={reasonCodeData} />
+          <ProductPopularityChart
+            data={reasonCodeData}
+            notApplicable={selectedBusiness?.value === 'MediUnderwrite'}
+          />
         </EmptyPanel>
 
         <EmptyPanel title={transactionTitle} height="380px">

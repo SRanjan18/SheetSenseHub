@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import {Box,Button,Chip,Container,Paper,Stack,TextField,Typography,Autocomplete,} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import DownloadIcon from '@mui/icons-material/Download';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -405,13 +404,6 @@ const handleSearch = async () => {
                   Search
                 </Button>
 
-                <Button
-                  variant="outlined"
-                  startIcon={<BarChartIcon />}
-                  sx={outlinedButtonSx}
-                >
-                  Analytics
-                </Button>
               </Stack>
             </Stack>
           </Paper>
@@ -429,9 +421,6 @@ const handleSearch = async () => {
               </Typography>
 
               <Stack direction="row" spacing={1}>
-                <Button variant="outlined" sx={outlinedButtonSx}>
-                  Filter Dataset
-                </Button>
                 <Button
                   variant="outlined"
                   startIcon={<DownloadIcon />}

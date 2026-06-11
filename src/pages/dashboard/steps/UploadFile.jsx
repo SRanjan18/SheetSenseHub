@@ -1,6 +1,6 @@
 export default function UploadFile({ selectedFile, onFileChange }) {
   return (
-    <div className="dashboard-form-shell dashboard-form-shell--center">
+    <div className="dashboard-form-shell dashboard-form-shell--center dashboard-form-shell--upload">
       <div className="dashboard-upload-panel">
         <div className="dashboard-upload-card">
           <h3>Source Upload</h3>

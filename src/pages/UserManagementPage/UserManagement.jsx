@@ -291,12 +291,6 @@ export default function UserManagement() {
 
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2} sx={{ mb: 2 }}>
-          <TextField
-            placeholder="Search users..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            sx={{ width: { xs: '100%', md: 360 } }}
-          />
 
           <Button
             variant="contained"

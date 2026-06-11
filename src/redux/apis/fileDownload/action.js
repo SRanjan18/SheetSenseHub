@@ -26,7 +26,7 @@ export const prepareFileDownload = (fileName) => (dispatch) => {
     throw new Error(message);
   }
 
-  const downloadUrl = `${config.apiBaseUrl}/api/files/download/${fileName}`;
+  const downloadUrl = `${config.apiBaseUrl}/api/ranjanLabs/download/${fileName}`;
 
   dispatch({
     type: FILE_DOWNLOAD_SUCCESS,

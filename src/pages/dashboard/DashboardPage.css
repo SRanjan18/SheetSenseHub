@@ -149,6 +149,14 @@
   background: linear-gradient(135deg, #006c5b 0%, #0e3b34 100%) !important;
 }
 
+.dashboard-mui-card__button--restricted,
+.dashboard-mui-card__button--restricted:hover {
+  background: #b7c8c1 !important;
+  color: #f8fffc !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
 .dashboard-content {
   max-width: 2050px;
   margin: 0 auto;
@@ -183,6 +191,14 @@
 .dashboard-form-shell--center {
   grid-template-columns: 1fr;
   justify-items: center;
+}
+
+.dashboard-form-shell--upload {
+  width: min(760px, 100%);
+  min-height: auto;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 18px;
 }
 
 .dashboard-form-shell--vo-layout {

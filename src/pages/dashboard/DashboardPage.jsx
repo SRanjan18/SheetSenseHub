@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useBusiness } from '../../context/businessContext';
+import { useAuth } from '../../context/AuthContext';
+import { showToast } from '../../store/toast';
 import './DashboardPage.css';
 import { styled } from '@mui/material/styles';
 import OutputTable from './steps/OutputTable';
@@ -97,6 +99,7 @@ export default function DashboardPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { selectedBusiness } = useBusiness();
+  const { canViewAnalytics, canViewReports } = useAuth();
   const {
     data: ingestionResponse,
     error: ingestionError,
@@ -214,6 +217,22 @@ const submitIngestion = async () => {
   return dispatch(uploadIngestion({ file: selectedFile, payload }));
 };
   const handleCardClick = (key) => {
+    if (key === 'report' && !canViewReports) {
+      dispatch(showToast({
+        message: 'You do not have access to Report.',
+        severity: 'error',
+      }));
+      return;
+    }
+
+    if (key === 'analytics' && !canViewAnalytics) {
+      dispatch(showToast({
+        message: 'You do not have access to Analytics.',
+        severity: 'error',
+      }));
+      return;
+    }
+
     const action = getCardAction(key);
 
     if (action.type === 'navigate') {
@@ -443,12 +462,35 @@ const isNextDisabled =
       />
   );
 }
+const outputRows = ingestionResponse?.body?.length
+  ? ingestionResponse.body
+  : businessFamily === 'simple-group' && ingestionResponse
+  ? [
+      {
+        category: 'N/A',
+        profile: 'N/A',
+        orthodontic_coverage: 'N/A',
+        request_id: ingestionResponse.request_id || 'N/A',
+        organization: ingestionResponse.organization || organization || 'N/A',
+        business: ingestionResponse.business || selectedBusiness || 'N/A',
+        file_name: ingestionResponse.file_name || selectedFile?.name || 'N/A',
+      },
+    ]
+  : voProducts.map((product) => ({
+      category: formatCategoryLabel(product.category),
+      profile: formatProfileLabel(product.profile),
+      orthodontic_coverage: ocChecked ? 'Yes' : 'No',
+      request_id: product.requestId || requestId || 'N/A',
+      organization: organization || 'N/A',
+      business: selectedBusiness || 'N/A',
+      file_name: selectedFile?.name || 'N/A',
+    }));
 
  return (
   <OutputTable
     organization={organization}
     requestId={requestId}
-    productsCount={ingestionResponse?.body?.length || voProducts.length}
+    productsCount={businessFamily === 'simple-group' ? 0 : ingestionResponse?.body?.length || voProducts.length}
     selectedBusiness={selectedBusiness}
     selectedFile={selectedFile}
     columns={[
@@ -460,19 +502,7 @@ const isNextDisabled =
       { key: 'business', header: 'Business' },
       { key: 'file_name', header: 'File Name' },
     ]}
-    data={
-      ingestionResponse?.body?.length
-        ? ingestionResponse.body
-        : voProducts.map((product) => ({
-            category: formatCategoryLabel(product.category),
-            profile: formatProfileLabel(product.profile),
-            orthodontic_coverage: ocChecked ? 'Yes' : 'No',
-            request_id: product.requestId || requestId || 'N/A',
-            organization: organization || 'N/A',
-            business: selectedBusiness || 'N/A',
-            file_name: selectedFile?.name || 'N/A',
-          }))
-    }
+    data={outputRows}
   />
 );
   };
@@ -509,7 +539,16 @@ const isNextDisabled =
 
                   <Button
                     variant="contained"
-                    className="dashboard-mui-card__button"
+                    className={`dashboard-mui-card__button ${
+                      (card.key === 'report' && !canViewReports) ||
+                      (card.key === 'analytics' && !canViewAnalytics)
+                        ? 'dashboard-mui-card__button--restricted'
+                        : ''
+                    }`}
+                    aria-disabled={
+                      (card.key === 'report' && !canViewReports) ||
+                      (card.key === 'analytics' && !canViewAnalytics)
+                    }
                     onClick={() => handleCardClick(card.key)}
                   >
                     {card.buttonText}

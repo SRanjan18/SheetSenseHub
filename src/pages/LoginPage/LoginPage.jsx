@@ -17,7 +17,7 @@ export default function LoginPage() {
   if (isLoading) {
     return <LoadingPage />;
   }
-
+//https://medium.muz.li/20-best-free-login-page-examples-and-responsive-templates-with-html-css-ffbea1f47dcd
   return (
     <div className="auth-screen">
       <div className="auth-screen__left">

@@ -839,8 +839,9 @@
   margin-top: 12px;
 }
 .dashboard-page--simple .dashboard-form-shell {
-  grid-template-columns: 1fr 1fr;
+    min-height: auto;
   align-items: start;
+  padding: 16px 18px;
 }
 
 .dashboard-page--simple .dashboard-form-left,
